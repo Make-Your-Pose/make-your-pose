@@ -1,19 +1,17 @@
 {
-  "name": "make-your-pose",
-  "private": true,
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
-  "devDependencies": {
-    "prettier": "^3.2.5",
-    "turbo": "^2.3.1",
-    "typescript": "5.5.4"
-  },
-  "packageManager": "pnpm@8.15.6",
-  "engines": {
-    "node": ">=18"
-  }
+	"name": "make-your-pose",
+	"private": true,
+	"scripts": {
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"lint": "turbo lint",
+		"format-and-lint": "biome check .",
+		"format-and-lint:fix": "biome check . --write"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"turbo": "^2.3.1",
+		"typescript": "5.7.2"
+	},
+	"packageManager": "pnpm@9.14.2"
 }
