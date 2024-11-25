@@ -4,7 +4,7 @@ import { css, cx } from "~styled-system/css";
 import { center, container, hstack } from "~styled-system/patterns";
 
 function Lobby() {
-	const [items, setItems] = createSignal(["sports", "meme", "yoga"]);
+	const [items] = createSignal(["sports", "meme", "yoga"]);
 
 	return (
 		<div class={cx(container(), center())}>
