@@ -1,0 +1,33 @@
+{
+  "name": "@make-your-pose/editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "prepare": "panda codegen",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ark-ui/react": "^4.6.0",
+    "@mediapipe/tasks-vision": "^0.10.18",
+    "@react-three/drei": "^9.120.5",
+    "@react-three/fiber": "^8.17.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@pandacss/dev": "^0.48.0",
+    "@park-ui/panda-preset": "^0.43.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/three": "^0.170.0",
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5",
+    "vite-tsconfig-paths": "^5.1.3"
+  }
+}
