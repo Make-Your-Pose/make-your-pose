@@ -1,5 +1,5 @@
 import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import Player from 'src/game/player';
 import {
@@ -9,14 +9,12 @@ import {
   getPoseAngles,
 } from 'src/pose/landmarks';
 import { useWebcam } from 'src/webcam/context';
-import { answerLandmarker, poseLandmarker } from 'src/webcam/pose-landmarker';
+import { answerLandmarker } from 'src/webcam/pose-landmarker';
 import { css, cx } from '~styled-system/css';
 import { container, hstack } from '~styled-system/patterns';
 
 function Game() {
   const navigate = useNavigate();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const startTimeMs = useRef(performance.now());
 
   const [score, setScore] = useState(0);
   const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
