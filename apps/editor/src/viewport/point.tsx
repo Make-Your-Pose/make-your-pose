@@ -1,14 +1,13 @@
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 import { PivotControls } from '@react-three/drei';
 import { useState } from 'react';
-import * as THREE from 'three';
 
 interface Props {
   landmark: NormalizedLandmark;
   onUpdate: (landmark: NormalizedLandmark) => void;
 }
 
-export default function Point({ landmark, onUpdate }: Props) {
+export default function Point({ landmark }: Props) {
   const [isSelected, setIsSelected] = useState(false);
 
   return (

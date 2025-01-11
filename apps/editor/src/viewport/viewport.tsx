@@ -12,9 +12,8 @@ interface Props {
 }
 
 export function Viewport({ landmarks, onLandmarksUpdate }: Props) {
-  const [selectedLandmark, setSelectedLandmark] =
-    useState<NormalizedLandmark | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedLandmark] = useState<NormalizedLandmark | null>(null);
+  const [selectedIndex] = useState<number | null>(null);
 
   return (
     <Stack direction="row" flex={1}>
