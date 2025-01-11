@@ -1,91 +1,154 @@
-import { useNavigate } from "@solidjs/router";
-import { createSignal, onCleanup, onMount } from "solid-js";
-import { css, cx } from "~styled-system/css";
-import { container, hstack } from "~styled-system/patterns";
+import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
+import Player from 'src/game/player';
+import {
+  calculateAngleSimilarity,
+  calculateCombinedSimilarity,
+  calculateDistanceSimilarity,
+  getPoseAngles,
+} from 'src/pose/landmarks';
+import { useWebcam } from 'src/webcam/context';
+import { answerLandmarker, poseLandmarker } from 'src/webcam/pose-landmarker';
+import { css, cx } from '~styled-system/css';
+import { container, hstack } from '~styled-system/patterns';
 
 function Game() {
-	let stream: MediaStream | null = null;
-	let videoRef: HTMLVideoElement | undefined;
-	let canvasRef: HTMLCanvasElement | undefined;
-	const [score, setScore] = createSignal(0);
-	const navigate = useNavigate();
+  const navigate = useNavigate();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const startTimeMs = useRef(performance.now());
 
-	onMount(() => {
-		const video = videoRef;
-		const canvas = canvasRef;
-		const context = canvas?.getContext("2d");
+  const [score, setScore] = useState(0);
+  const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
+    null,
+  );
 
-		if (navigator.mediaDevices.getUserMedia) {
-			navigator.mediaDevices
-				.getUserMedia({ video: true })
-				.then((mediaStream) => {
-					stream = mediaStream;
-					if (video) {
-						video.srcObject = stream;
-						video.play();
-					}
-				})
-				.catch((err) => {
-					console.error("Error accessing webcam: ", err);
-				});
-		}
+  const webcam = useWebcam();
 
-		const render = () => {
-			if (video && context && canvas) {
-				context.drawImage(video, 0, 0, canvas.width, canvas.height);
-				requestAnimationFrame(render);
-			}
-		};
+  useEffect(() => {
+    if (answerPose?.landmarks[0] && webcam.poseLandmarkerResult?.landmarks[0]) {
+      const distanceSimilarity = calculateDistanceSimilarity(
+        answerPose.landmarks[0],
+        webcam.poseLandmarkerResult.landmarks[0],
+      );
+      console.log('distanceSimilarity:', distanceSimilarity);
 
-		render();
-	});
+      const answerAngles = getPoseAngles(answerPose.landmarks[0]);
+      const userAngles = getPoseAngles(
+        webcam.poseLandmarkerResult.landmarks[0],
+      );
+      const angleSimilarity = calculateAngleSimilarity(
+        answerAngles,
+        userAngles,
+      );
+      console.log('angleSimilarity:', angleSimilarity);
 
-	onCleanup(() => {
-		if (stream) {
-			for (const track of stream.getTracks()) {
-				track.stop();
-			}
-		}
-	});
+      const combinedSimilarity = calculateCombinedSimilarity(
+        distanceSimilarity,
+        angleSimilarity,
+      );
+      console.log('combinedSimilarity:', combinedSimilarity);
+    }
+  }, [webcam.poseLandmarkerResult, answerPose]);
 
-	const addScore = () => {
-		setScore(score() + 100);
-	};
+  // useEffect(() => {
+  //   console.log(webcam.stream);
+  // }, [webcam.stream]);
 
-	const endGame = () => {
-		navigate("/result", { state: { score: score() } });
-	};
+  // useEffect(() => {
+  //   const canvas = canvasRef.current;
+  //   const context = canvas?.getContext('2d');
 
-	return (
-		<div class={container()}>
-			{/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
-			<video ref={videoRef} style={{ display: "none" }} />
-			<canvas ref={canvasRef} width="640" height="480" />
-			<div class={cx(hstack(), css({ my: "8" }))}>
-				<button
-					type="button"
-					class={css({
-						bg: "blue.500",
-						p: "2",
-					})}
-					onClick={addScore}
-				>
-					Add 100 to Score
-				</button>
-				<button
-					type="button"
-					class={css({
-						bg: "blue.500",
-						p: "2",
-					})}
-					onClick={endGame}
-				>
-					End
-				</button>
-			</div>
-			<div>Score: {score()}</div>
-		</div>
-	);
+  //   const render = async () => {
+  //     if (video && context && canvas) {
+  //       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  //       await poseLandmarker.setOptions({ runningMode: 'VIDEO' });
+  //       const result = poseLandmarker.detectForVideo(
+  //         video,
+  //         startTimeMs.current,
+  //       );
+
+  //       const drawingUtils = new DrawingUtils(context);
+  //       for (const landmark of result.landmarks) {
+  //         drawingUtils.drawLandmarks(landmark, {
+  //           // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  //           radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1),
+  //         });
+  //         drawingUtils.drawConnectors(
+  //           landmark,
+  //           PoseLandmarker.POSE_CONNECTIONS,
+  //         );
+  //       }
+
+  //       requestAnimationFrame(render);
+  //     }
+  //   };
+
+  //   render();
+
+  //   return () => {
+  //     if (streamRef.current) {
+  //       for (const track of streamRef.current.getTracks()) {
+  //         track.stop();
+  //       }
+  //     }
+  //   };
+  // }, []);
+
+  const addScore = () => {
+    setScore(score + 100);
+  };
+
+  const endGame = () => {
+    navigate('/result', { state: { score: score } });
+  };
+
+  // const handleImageLoad: React.ReactEventHandler<HTMLImageElement> = async (
+  //   event,
+  // ) => {
+  //   await poseLandmarker.setOptions({ runningMode: 'IMAGE' });
+  //   const answerResult = poseLandmarker.detect(event.currentTarget);
+  //   setAnswerPose(answerResult);
+  //   console.log('Answer result:', answerResult);
+  // };
+
+  const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
+    const poseLandmarkerResult = answerLandmarker.detect(event.currentTarget);
+    setAnswerPose(poseLandmarkerResult);
+  };
+
+  return (
+    <div className={container()}>
+      <Player />
+      <div className={css({ position: 'relative' })}>
+        <img src="./00008.jpg" width="100%" alt="" onLoad={handleLoad} />
+      </div>
+      <div className={cx(hstack(), css({ my: '8' }))}>
+        <button
+          type="button"
+          className={css({
+            bg: 'blue.500',
+            p: '2',
+          })}
+          onClick={addScore}
+        >
+          Add 100 to Score
+        </button>
+        <button
+          type="button"
+          className={css({
+            bg: 'blue.500',
+            p: '2',
+          })}
+          onClick={endGame}
+        >
+          End
+        </button>
+      </div>
+      <div>Score: {score}</div>
+    </div>
+  );
 }
 
 export default Game;
