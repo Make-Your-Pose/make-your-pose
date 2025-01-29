@@ -15,7 +15,7 @@ export function Landmarks({ landmarks, onLandmarksUpdate }: Props) {
         (lm) =>
           ({
             x: lm.x * 5,
-            y: lm.y * 5,
+            y: lm.y * -5,
             z: lm.z * 5,
             visibility: lm.visibility,
           }) satisfies NormalizedLandmark,

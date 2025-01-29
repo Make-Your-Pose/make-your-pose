@@ -18,9 +18,17 @@ export default function Point({ landmark }: Props) {
       disableScaling
       disableSliders
       depthTest={false}
+      // autoTransform={false}
       // onDrag={(l, dl, w, dw) => {
+      //   const newPosition = new Vector3();
+      //   l.decompose(newPosition, new Quaternion(), new Vector3());
+
+      //   // 기존 landmark 데이터와 병합하여 업데이트
       //   onUpdate({
       //     ...landmark,
+      //     x: newPosition.x,
+      //     y: newPosition.y,
+      //     z: newPosition.z,
       //   });
       // }}
     >
