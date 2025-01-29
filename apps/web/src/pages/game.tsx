@@ -10,8 +10,9 @@ import {
 } from 'src/pose/landmarks';
 import { useWebcam } from 'src/webcam/context';
 import { answerLandmarker } from 'src/webcam/pose-landmarker';
-import { css, cx } from '~styled-system/css';
-import { container, hstack } from '~styled-system/patterns';
+import { css } from '~styled-system/css';
+import { hstack, vstack } from '~styled-system/patterns';
+import bg1 from '../images/bg-1.png';
 
 function Game() {
   const navigate = useNavigate();
@@ -117,12 +118,12 @@ function Game() {
   };
 
   return (
-    <div className={container()}>
+    <div>
       <Player />
-      <div className={css({ position: 'relative' })}>
+      <div className={css({ srOnly: true, position: 'relative' })}>
         <img src="./00008.jpg" width="100%" alt="" onLoad={handleLoad} />
       </div>
-      <div className={cx(hstack(), css({ my: '8' }))}>
+      <div className={hstack({ my: '8', srOnly: true })}>
         <button
           type="button"
           className={css({
@@ -144,7 +145,120 @@ function Game() {
           End
         </button>
       </div>
-      <div>Score: {score}</div>
+      <div
+        className={css({
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          left: '0',
+          top: '0',
+          bgSize: 'cover',
+          bgPosition: 'center',
+        })}
+        style={{
+          backgroundImage: `url(${bg1})`,
+        }}
+      />
+
+      <div
+        className={hstack({
+          gap: '12',
+          justify: 'center',
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
+          px: '12',
+          py: '16',
+        })}
+      >
+        <div className={vstack({ gap: '4', height: '100%' })}>
+          <div
+            className={css({
+              display: 'inline-flex',
+              px: '8',
+              py: '2',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'full',
+              border: '1px solid',
+              borderColor: 'white',
+              textStyle: '2xl',
+              fontWeight: 'bold',
+              color: 'white',
+              backdropFilter: 'auto',
+              backdropBlur: '2xl',
+              bgColor: 'rgba(0, 0, 0, 0.1)',
+            })}
+          >
+            Round 1
+          </div>
+          <div
+            className={css({
+              flex: '1',
+              borderRadius: '2xl',
+              border: '1px solid',
+              borderColor: 'white',
+              width: '300px',
+
+              bgColor: 'rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'auto',
+              backdropBlur: 'md',
+            })}
+          />
+        </div>
+        <div className={vstack({ gap: '4', height: '100%' })}>
+          <div
+            className={vstack({
+              alignItems: 'center',
+              gap: '1',
+              px: '12',
+              py: '4',
+              bgColor: 'white',
+              borderRadius: 'xl',
+            })}
+          >
+            Score
+            <div className={css({ textStyle: '2xl', fontWeight: 'bold' })}>
+              {score}
+            </div>
+          </div>
+        </div>
+        <div className={vstack({ gap: '4', height: '100%' })}>
+          <div
+            className={css({
+              display: 'inline-flex',
+              px: '8',
+              py: '2',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'full',
+              border: '1px solid',
+              borderColor: 'white',
+              textStyle: '2xl',
+              fontWeight: 'bold',
+              color: 'white',
+              backdropFilter: 'auto',
+              backdropBlur: '2xl',
+              bgColor: 'rgba(0, 0, 0, 0.1)',
+            })}
+          >
+            Player 1
+          </div>
+          <div
+            className={css({
+              flex: '1',
+              borderRadius: '2xl',
+              border: '1px solid',
+              borderColor: 'white',
+              width: '300px',
+
+              bgColor: 'rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'auto',
+              backdropBlur: 'md',
+            })}
+          />
+        </div>
+      </div>
     </div>
   );
 }

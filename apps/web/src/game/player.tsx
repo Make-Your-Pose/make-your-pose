@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useWebcam } from 'src/webcam/context';
+import { css } from '~styled-system/css';
 
 function Player() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -12,7 +13,7 @@ function Player() {
   }, [stream]);
 
   return (
-    <div>
+    <div className={css({ srOnly: true })}>
       {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <video ref={videoRef} autoPlay />
     </div>
