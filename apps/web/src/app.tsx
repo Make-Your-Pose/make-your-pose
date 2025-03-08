@@ -5,9 +5,11 @@ import Home from './pages/home';
 import Lobby from './pages/lobby';
 import Result from './pages/result';
 import WebcamLayout from './webcam/layout';
+import { GestureProvider } from './webcam/GestureProvider';
 
 function App() {
   return (
+    <GestureProvider>
     <MemoryRouter>
       <Routes>
         <Route element={<WebcamLayout />}>
@@ -18,6 +20,7 @@ function App() {
         </Route>
       </Routes>
     </MemoryRouter>
+    </GestureProvider>
   );
 }
 

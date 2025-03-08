@@ -1,13 +1,16 @@
 import { Tabs } from '@ark-ui/react';
-
 import { css } from '~styled-system/css';
+import { container } from "~styled-system/patterns";
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { Link } from 'react-router';
+import { useGesture } from "../webcam/GestureProvider"; 
 
 function Lobby() {
+  const { buttonRef } = useGesture();
+
   return (
-    <div>
+    <div className={container()}>
       <Tabs.Root defaultValue="1">
         <div
           className={css({
@@ -76,6 +79,7 @@ function Lobby() {
               </div>
             </div>
             <Link
+              ref={buttonRef}
               to={'/game'}
               className={css({
                 display: 'inline-flex',
