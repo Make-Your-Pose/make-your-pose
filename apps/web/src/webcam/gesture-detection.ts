@@ -5,7 +5,7 @@ const vision = await FilesetResolver.forVisionTasks(
   );
 
 
-  // 제스처 인식
+  //제스처 인식
 export const gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath:
@@ -20,7 +20,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
       displayNamesLocale: "en",
       maxResults: -1,
       scoreThreshold: 0.0,
-      categoryAllowlist: ["Pointing_Up", "Thumb_Up", "Victory"], // ✅ "Thumb_Up" 감지만 허용
+      categoryAllowlist: ["Pointing_Up", "Thumb_Up", "Victory"],
       categoryDenylist: [],
     },
     customGesturesClassifierOptions: {
@@ -32,7 +32,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     },
   });
 
-// 제스처 랜드마크 시각화 및 버튼 클릭 이벤트
+//제스처 랜드마크 시각화 및 버튼 클릭 이벤트
   let rightThumbUpTimer = null;
   let leftThumbUpTimer = null;
   let bothThumbUpTimer = null;
@@ -45,7 +45,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
   
     if (!ctx) return;
   
-    // 캔버스 초기화
+    //캔버스 초기화
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = 640;
     canvas.height = 480;
@@ -53,7 +53,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     let rightThumbUp = false;
     let leftThumbUp = false;
   
-    // **손 랜드마크 시각화**
+    //손 랜드마크 시각화
     gestureResults.landmarks.forEach((hand, index) => {
       hand.forEach((point) => {
         ctx.beginPath();
@@ -62,10 +62,10 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
         ctx.fill();
       });
   
-      // **Thumb_Up 제스처 감지 및 손 위치 판별**
+      //Thumb_Up 제스처 감지 및 손 위치 판별
       const categoryName = gestureResults.gestures[index]?.[0]?.categoryName;
       if (categoryName === "Thumb_Up") {
-        const palmX = hand[0].x; // 손바닥 기준 x 좌표
+        const palmX = hand[0].x; //손바닥 기준 x 좌표
   
         if (palmX < 0.5) {
           leftThumbUp = true;
@@ -75,7 +75,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
       }
     });
   
-    // **2초 동안 유지 체크**
+    // 2초 동안 유지
     if (rightThumbUp && leftThumbUp) {
       if (!bothThumbUpTimer) {
         console.log("양손 Thumb Up 감지! 2초 유지하면 클릭");
@@ -119,7 +119,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     }
   }
   
-  // **포커스 이동 함수**
+  //포커스 이동 함수
   function moveFocus(forward = true) {
     const focusableElements = Array.from(
       document.querySelectorAll(
@@ -133,15 +133,15 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     let nextIndex;
   
     if (forward) {
-      nextIndex = (currentIndex + 1) % focusableElements.length; // 다음 요소 (마지막이면 첫 번째로)
+      nextIndex = (currentIndex + 1) % focusableElements.length; //다음 요소 (마지막이면 첫 번째로)
     } else {
-      nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length; // 이전 요소 (첫 번째면 마지막으로)
+      nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length; //이전 요소 (첫 번째면 마지막으로)
     }
   
     focusableElements[nextIndex].focus();
   }
   
-  // **현재 포커스된 요소 클릭**
+  //현재 포커스된 요소 클릭
   function triggerEnterKey() {
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === "BUTTON" || activeElement.tagName === "A" )) {

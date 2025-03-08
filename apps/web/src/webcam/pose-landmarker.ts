@@ -1,10 +1,10 @@
-import { FilesetResolver, PoseLandmarker, GestureRecognizer } from "@mediapipe/tasks-vision";
+import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 
 const vision = await FilesetResolver.forVisionTasks(
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
 );
 
-// 포즈 랜드마커 (Pose Landmarker)
+//포즈 랜드마커 (Pose Landmarker)
 export const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
   baseOptions: {
     modelAssetPath:
@@ -14,7 +14,7 @@ export const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
   runningMode: "VIDEO",
 });
 
-// 정답 비교용 포즈 랜드마커 (Answer Landmarker)
+//정답 비교용 포즈 랜드마커 (Answer Landmarker)
 export const answerLandmarker = await PoseLandmarker.createFromOptions(vision, {
   baseOptions: {
     modelAssetPath:

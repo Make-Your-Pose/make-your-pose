@@ -15,16 +15,16 @@ export function GestureProvider({ children }) {
       if (!videoRef.current) return;
 
       try {
-        console.log("🎥 전역 비디오 스트림 시작...");
+        console.log("전역 비디오 스트림 시작");
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoRef.current.srcObject = stream;
 
         videoRef.current.addEventListener("canplay", () => {
-          console.log("✅ 비디오 스트림 준비 완료!");
+          console.log("비디오 스트림 준비 완료!");
           startGestureRecognition();
         });
       } catch (error) {
-        console.error("❌ 비디오 스트림 오류:", error);
+        console.error("비디오 스트림 오류:", error);
       }
     }
 
@@ -39,11 +39,11 @@ export function GestureProvider({ children }) {
 
   async function startGestureRecognition() {
     if (!gestureRecognizer) {
-      console.error("❌ Gesture Recognizer 초기화되지 않음");
+      console.error("Gesture Recognizer 초기화되지 않음");
       return;
     }
 
-    console.log("✅ Gesture Recognizer 실행됨");
+    console.log("Gesture Recognizer 실행됨");
 
     const detectLoop = async () => {
       if (!videoRef.current || videoRef.current.readyState < 2) {
@@ -58,7 +58,7 @@ export function GestureProvider({ children }) {
           detectGesture(results, canvasRef, buttonRef);
         }
       } catch (error) {
-        console.error("❌ 제스처 인식 오류:", error);
+        console.error("제스처 인식 오류:", error);
       }
 
       animationFrameIdRef.current = requestAnimationFrame(detectLoop);
@@ -87,7 +87,7 @@ export function GestureProvider({ children }) {
   );
 }
 
-// 2️⃣ 제스처 컨텍스트 사용 함수
+//제스처 컨텍스트 사용 함수
 export function useGesture() {
   return useContext(GestureContext);
 }

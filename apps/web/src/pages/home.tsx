@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router"; 
 import { css } from "~styled-system/css";
 import { container, vstack } from "~styled-system/patterns";
-import { useGesture } from "../webcam/GestureProvider"; // ✅ 제스처 컨텍스트 사용
+import { useGesture } from "../webcam/GestureProvider";
 
 function Home() {
   const { buttonRef } = useGesture(); 
