@@ -38,6 +38,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
   let bothThumbUpTimer = null;
   
   export function detectGesture(gestureResults, canvasRef) {
+    
     if (!gestureResults || !canvasRef?.current) return;
   
     const canvas = canvasRef.current;
@@ -49,7 +50,12 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.width = 640;
     canvas.height = 480;
-  
+
+    // 캔버스 거울 모드
+    ctx.save(); 
+    ctx.translate(canvas.width, 0); 
+    ctx.scale(-1, 1);
+      
     let rightThumbUp = false;
     let leftThumbUp = false;
   
@@ -61,15 +67,15 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
         ctx.fillStyle = "red";
         ctx.fill();
       });
+
+      // `handedness` 값을 가져와 사용
+      const handType = gestureResults.handedness[index]?.[0]?.displayName; // "Left" 또는 "Right"
   
-      //Thumb_Up 제스처 감지 및 손 위치 판별
       const categoryName = gestureResults.gestures[index]?.[0]?.categoryName;
       if (categoryName === "Thumb_Up") {
-        const palmX = hand[0].x; //손바닥 기준 x 좌표
-  
-        if (palmX < 0.5) {
+        if (handType === "Left") {
           leftThumbUp = true;
-        } else {
+        } else if (handType === "Right") {
           rightThumbUp = true;
         }
       }
