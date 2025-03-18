@@ -1,4 +1,4 @@
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { BrowserRouter, Route, Routes } from 'react-router';
 
 import Game from './pages/game';
 import Home from './pages/home';
@@ -8,7 +8,7 @@ import WebcamLayout from './webcam/layout';
 
 function App() {
   return (
-    <MemoryRouter>
+    <BrowserRouter>
       <Routes>
         <Route element={<WebcamLayout />}>
           <Route index element={<Home />} />
@@ -17,7 +17,7 @@ function App() {
           <Route path="/result" element={<Result />} />
         </Route>
       </Routes>
-    </MemoryRouter>
+    </BrowserRouter>
   );
 }
 

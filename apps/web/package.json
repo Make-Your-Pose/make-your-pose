@@ -11,9 +11,17 @@
   "dependencies": {
     "@ark-ui/react": "^4.6.0",
     "@mediapipe/tasks-vision": "^0.10.18",
+    "@pixiv/three-vrm": "^3.3.5",
+    "@react-three/drei": "^9.120.5",
+    "@react-three/fiber": "^8.17.10",
+    "@statelyai/inspect": "^0.4.0",
+    "@types/three": "^0.170.0",
+    "@xstate/react": "^5.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router": "^7.1.1"
+    "react-router": "^7.1.1",
+    "three": "^0.170.0",
+    "xstate": "^5.19.2"
   },
   "devDependencies": {
     "@pandacss/dev": "^0.48.0",

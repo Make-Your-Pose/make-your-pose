@@ -13,11 +13,16 @@ import { answerLandmarker } from 'src/webcam/pose-landmarker';
 import { css } from '~styled-system/css';
 import { hstack, vstack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
+import { useMachine } from '@xstate/react';
+import { gameMachine } from 'src/game/machine';
+import { createBrowserInspector } from '@statelyai/inspect';
+import { Hint } from 'src/game/hint';
+
+const { inspect } = createBrowserInspector();
 
 function Game() {
   const navigate = useNavigate();
 
-  const [score, setScore] = useState(0);
   const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
     null,
   );
@@ -30,7 +35,7 @@ function Game() {
         answerPose.landmarks[0],
         webcam.poseLandmarkerResult.landmarks[0],
       );
-      console.log('distanceSimilarity:', distanceSimilarity);
+      // console.log('distanceSimilarity:', distanceSimilarity);
 
       const answerAngles = getPoseAngles(answerPose.landmarks[0]);
       const userAngles = getPoseAngles(
@@ -40,67 +45,20 @@ function Game() {
         answerAngles,
         userAngles,
       );
-      console.log('angleSimilarity:', angleSimilarity);
+      // console.log('angleSimilarity:', angleSimilarity);
 
       const combinedSimilarity = calculateCombinedSimilarity(
         distanceSimilarity,
         angleSimilarity,
       );
-      console.log('combinedSimilarity:', combinedSimilarity);
+      // console.log('combinedSimilarity:', combinedSimilarity);
     }
   }, [webcam.poseLandmarkerResult, answerPose]);
 
-  // useEffect(() => {
-  //   console.log(webcam.stream);
-  // }, [webcam.stream]);
-
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const context = canvas?.getContext('2d');
-
-  //   const render = async () => {
-  //     if (video && context && canvas) {
-  //       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  //       await poseLandmarker.setOptions({ runningMode: 'VIDEO' });
-  //       const result = poseLandmarker.detectForVideo(
-  //         video,
-  //         startTimeMs.current,
-  //       );
-
-  //       const drawingUtils = new DrawingUtils(context);
-  //       for (const landmark of result.landmarks) {
-  //         drawingUtils.drawLandmarks(landmark, {
-  //           // biome-ignore lint/style/noNonNullAssertion: <explanation>
-  //           radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1),
-  //         });
-  //         drawingUtils.drawConnectors(
-  //           landmark,
-  //           PoseLandmarker.POSE_CONNECTIONS,
-  //         );
-  //       }
-
-  //       requestAnimationFrame(render);
-  //     }
-  //   };
-
-  //   render();
-
-  //   return () => {
-  //     if (streamRef.current) {
-  //       for (const track of streamRef.current.getTracks()) {
-  //         track.stop();
-  //       }
-  //     }
-  //   };
-  // }, []);
-
-  const addScore = () => {
-    setScore(score + 100);
-  };
+  const [state, send] = useMachine(gameMachine, { inspect });
 
   const endGame = () => {
-    navigate('/result', { state: { score: score } });
+    navigate('/result');
   };
 
   // const handleImageLoad: React.ReactEventHandler<HTMLImageElement> = async (
@@ -117,33 +75,14 @@ function Game() {
     setAnswerPose(poseLandmarkerResult);
   };
 
+  useEffect(() => {
+    console.log(state);
+  }, [state]);
+
   return (
     <div>
-      <Player />
       <div className={css({ srOnly: true, position: 'relative' })}>
         <img src="./00008.jpg" width="100%" alt="" onLoad={handleLoad} />
-      </div>
-      <div className={hstack({ my: '8', srOnly: true })}>
-        <button
-          type="button"
-          className={css({
-            bg: 'blue.500',
-            p: '2',
-          })}
-          onClick={addScore}
-        >
-          Add 100 to Score
-        </button>
-        <button
-          type="button"
-          className={css({
-            bg: 'blue.500',
-            p: '2',
-          })}
-          onClick={endGame}
-        >
-          End
-        </button>
       </div>
       <div
         className={css({
@@ -190,7 +129,7 @@ function Game() {
               bgColor: 'rgba(0, 0, 0, 0.1)',
             })}
           >
-            Round 1
+            Round {state.context.round + 1}
           </div>
           <div
             className={css({
@@ -204,7 +143,9 @@ function Game() {
               backdropFilter: 'auto',
               backdropBlur: 'md',
             })}
-          />
+          >
+            <Hint hint={state.context.hint} />
+          </div>
         </div>
         <div className={vstack({ gap: '4', height: '100%' })}>
           <div
@@ -219,7 +160,7 @@ function Game() {
           >
             Score
             <div className={css({ textStyle: '2xl', fontWeight: 'bold' })}>
-              {score}
+              {state.context.score}
             </div>
           </div>
         </div>
@@ -256,7 +197,9 @@ function Game() {
               backdropFilter: 'auto',
               backdropBlur: 'md',
             })}
-          />
+          >
+            <Player />
+          </div>
         </div>
       </div>
     </div>

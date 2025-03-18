@@ -88,14 +88,14 @@ function WebcamLayout() {
   return (
     <WebcamContext.Provider value={{ stream, poseLandmarkerResult }}>
       <div>
-        <label>
+        {/* <label>
           <input
             type="checkbox"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
           />
           Activate Webcam
-        </label>
+        </label> */}
 
         <div className={css({ position: 'relative' })}>
           {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
