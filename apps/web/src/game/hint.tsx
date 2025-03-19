@@ -12,6 +12,8 @@ export function Hint({ hint }: Props) {
         gap: '4px',
         width: '100%',
         height: '100%',
+        position: 'absolute',
+        inset: 0,
       }}
     >
       {hint.map((isVisible, index) => (

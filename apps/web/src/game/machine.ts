@@ -4,13 +4,15 @@ export const gameMachine = setup({
   types: {
     context: {} as {
       hint: boolean[];
+      snapshot: number | null;
       round: number;
       score: number;
     },
     events: {} as
       | { type: 'timeout' }
       | { type: 'pass'; score: number }
-      | { type: 'fail' },
+      | { type: 'fail' }
+      | { type: 'next' },
   },
   actions: {
     nextHint: assign({
@@ -19,6 +21,7 @@ export const gameMachine = setup({
         nextHint[Math.floor(Math.random() * 9)] = true;
         return nextHint;
       },
+      snapshot: Date.now(),
     }),
     nextRound: assign({
       hint: () => [
@@ -51,6 +54,7 @@ export const gameMachine = setup({
     hint: [false, false, false, false, false, false, false, false, false],
     round: 0,
     score: 0,
+    snapshot: null,
   },
   initial: 'pending',
   states: {
@@ -62,18 +66,7 @@ export const gameMachine = setup({
       },
     },
     playing: {
-      after: {
-        hintTimeout: [
-          {
-            guard: 'isRoundFinished',
-            target: 'wrong',
-          },
-          {
-            actions: ['nextHint'],
-            target: 'playing',
-          },
-        ],
-      },
+      entry: ['nextHint'],
       on: {
         pass: {
           target: 'answer',
@@ -84,6 +77,15 @@ export const gameMachine = setup({
         fail: {
           target: 'wrong',
         },
+        next: [
+          {
+            guard: 'isRoundFinished',
+            target: 'wrong',
+          },
+          {
+            actions: ['nextHint'],
+          },
+        ],
       },
     },
     answer: {

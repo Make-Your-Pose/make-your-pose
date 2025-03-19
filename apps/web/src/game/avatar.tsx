@@ -129,7 +129,7 @@ function Avatar({ poseData, worldData }: Props) {
     rigRotation('RightLeg', solution.RightLowerLeg, 1, 0.1);
   }, [poseData, worldData]);
 
-  return <primitive object={scene} scale={1.5} />;
+  return <primitive object={scene} scale={2} position={[0, -1.5, 0]} />;
 }
 
 export default Avatar;

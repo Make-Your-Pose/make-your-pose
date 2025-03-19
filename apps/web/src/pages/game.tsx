@@ -17,6 +17,7 @@ import { useMachine } from '@xstate/react';
 import { gameMachine } from 'src/game/machine';
 import { createBrowserInspector } from '@statelyai/inspect';
 import { Hint } from 'src/game/hint';
+import { CircularProgressBar } from '../game/circular-progress-bar';
 
 const { inspect } = createBrowserInspector();
 
@@ -57,6 +58,8 @@ function Game() {
 
   const [state, send] = useMachine(gameMachine, { inspect });
 
+  const isPlaying = state.matches('playing');
+
   const endGame = () => {
     navigate('/result');
   };
@@ -81,9 +84,6 @@ function Game() {
 
   return (
     <div>
-      <div className={css({ srOnly: true, position: 'relative' })}>
-        <img src="./00008.jpg" width="100%" alt="" onLoad={handleLoad} />
-      </div>
       <div
         className={css({
           position: 'fixed',
@@ -137,13 +137,31 @@ function Game() {
               borderRadius: '2xl',
               border: '1px solid',
               borderColor: 'white',
-              width: '300px',
+              width: '600px',
+              overflow: 'hidden',
+              position: 'relative',
 
               bgColor: 'rgba(0, 0, 0, 0.1)',
               backdropFilter: 'auto',
               backdropBlur: 'md',
             })}
           >
+            <img
+              src="./00008.jpg"
+              width="100%"
+              alt=""
+              className={css({
+                position: 'absolute',
+                inset: 0,
+                display: 'block',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              })}
+              onLoad={handleLoad}
+            />
+
             <Hint hint={state.context.hint} />
           </div>
         </div>
@@ -162,6 +180,37 @@ function Game() {
             <div className={css({ textStyle: '2xl', fontWeight: 'bold' })}>
               {state.context.score}
             </div>
+          </div>
+
+          <div
+            className={vstack({
+              alignItems: 'center',
+              gap: '1',
+              px: '12',
+              py: '4',
+              borderRadius: 'xl',
+              backdropFilter: 'auto',
+              backdropBlur: '2xl',
+              bgColor: 'rgba(0, 0, 0, 0.3)',
+              mt: '200px',
+            })}
+          >
+            <div
+              className={css({
+                color: 'white',
+                fontWeight: 'bold',
+                textStyle: 'lg',
+              })}
+            >
+              Time Left
+            </div>
+            {state.context.snapshot !== null ? (
+              <CircularProgressBar
+                value={state.context.snapshot}
+                maxValue={3.0}
+                onFinish={() => send({ type: 'next' })}
+              />
+            ) : null}
           </div>
         </div>
         <div className={vstack({ gap: '4', height: '100%' })}>
@@ -191,7 +240,8 @@ function Game() {
               borderRadius: '2xl',
               border: '1px solid',
               borderColor: 'white',
-              width: '300px',
+              width: '600px',
+              overflow: 'hidden',
 
               bgColor: 'rgba(0, 0, 0, 0.1)',
               backdropFilter: 'auto',
