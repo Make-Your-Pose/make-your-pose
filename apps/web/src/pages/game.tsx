@@ -1,13 +1,13 @@
 import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+// import { useNavigate } from 'react-router';
 import Player from 'src/game/player';
-import {
-  calculateAngleSimilarity,
-  calculateCombinedSimilarity,
-  calculateDistanceSimilarity,
-  getPoseAngles,
-} from 'src/pose/landmarks';
+// import {
+//   calculateAngleSimilarity,
+//   calculateCombinedSimilarity,
+//   calculateDistanceSimilarity,
+//   getPoseAngles,
+// } from 'src/pose/landmarks';
 import { useWebcam } from 'src/webcam/context';
 import { answerLandmarker } from 'src/webcam/pose-landmarker';
 import { css } from '~styled-system/css';
@@ -22,7 +22,7 @@ import { CircularProgressBar } from '../game/circular-progress-bar';
 const { inspect } = createBrowserInspector();
 
 function Game() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
     null,
@@ -32,37 +32,35 @@ function Game() {
 
   useEffect(() => {
     if (answerPose?.landmarks[0] && webcam.poseLandmarkerResult?.landmarks[0]) {
-      const distanceSimilarity = calculateDistanceSimilarity(
-        answerPose.landmarks[0],
-        webcam.poseLandmarkerResult.landmarks[0],
-      );
-      // console.log('distanceSimilarity:', distanceSimilarity);
-
-      const answerAngles = getPoseAngles(answerPose.landmarks[0]);
-      const userAngles = getPoseAngles(
-        webcam.poseLandmarkerResult.landmarks[0],
-      );
-      const angleSimilarity = calculateAngleSimilarity(
-        answerAngles,
-        userAngles,
-      );
+      // const distanceSimilarity = calculateDistanceSimilarity(
+      //   answerPose.landmarks[0],
+      //   webcam.poseLandmarkerResult.landmarks[0],
+      // );
+      // // console.log('distanceSimilarity:', distanceSimilarity);
+      // const answerAngles = getPoseAngles(answerPose.landmarks[0]);
+      // const userAngles = getPoseAngles(
+      //   webcam.poseLandmarkerResult.landmarks[0],
+      // );
+      // const angleSimilarity = calculateAngleSimilarity(
+      //   answerAngles,
+      //   userAngles,
+      // );
       // console.log('angleSimilarity:', angleSimilarity);
-
-      const combinedSimilarity = calculateCombinedSimilarity(
-        distanceSimilarity,
-        angleSimilarity,
-      );
+      // const combinedSimilarity = calculateCombinedSimilarity(
+      //   distanceSimilarity,
+      //   angleSimilarity,
+      // );
       // console.log('combinedSimilarity:', combinedSimilarity);
     }
   }, [webcam.poseLandmarkerResult, answerPose]);
 
   const [state, send] = useMachine(gameMachine, { inspect });
 
-  const isPlaying = state.matches('playing');
+  // const isPlaying = state.matches('playing');
 
-  const endGame = () => {
-    navigate('/result');
-  };
+  // const endGame = () => {
+  //   navigate('/result');
+  // };
 
   // const handleImageLoad: React.ReactEventHandler<HTMLImageElement> = async (
   //   event,

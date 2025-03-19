@@ -13,7 +13,7 @@ function WebcamLayout() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [poseLandmarkerResult, setPoseLandmarkerResult] =
     useState<PoseLandmarkerResult | null>(null);
-  const [isActive, setIsActive] = useState(false);
+  const [isActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastVideoTimestampRef = useRef(performance.now());
