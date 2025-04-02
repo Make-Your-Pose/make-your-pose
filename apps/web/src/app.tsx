@@ -6,6 +6,7 @@ import Lobby from './pages/lobby';
 import Result from './pages/result';
 import WebcamLayout from './webcam/layout';
 import { GestureProvider } from './webcam/GestureProvider';
+import Tutorial from './pages/tutorial';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/lobby" element={<Lobby />} />
           <Route path="/game" element={<Game />} />
           <Route path="/result" element={<Result />} />
+          <Route path="tutorial" element={<Tutorial/>}/>
         </Route>
       </Routes>
     </MemoryRouter>

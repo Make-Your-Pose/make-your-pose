@@ -6,7 +6,7 @@ const GestureContext = createContext(null);
 export function GestureProvider({ children }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const buttonRef = useRef(null);
+  const buttonRefs = useRef([]);
   const animationFrameIdRef = useRef<number | null>(null);
   const [gestureResults, setGestureResults] = useState(null);
 
@@ -55,7 +55,7 @@ export function GestureProvider({ children }) {
         const results = await gestureRecognizer.recognizeForVideo(videoRef.current, performance.now());
         if (results?.gestures.length > 0) {
           setGestureResults(results);
-          detectGesture(results, canvasRef, buttonRef);
+          detectGesture(results, canvasRef, buttonRefs);
         }
       } catch (error) {
         console.error("제스처 인식 오류:", error);
@@ -68,7 +68,7 @@ export function GestureProvider({ children }) {
   }
 
   return (
-    <GestureContext.Provider value={{ videoRef, canvasRef, buttonRef, gestureResults }}>
+    <GestureContext.Provider value={{ videoRef, canvasRef, buttonRefs, gestureResults }}>
       <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
       <canvas
         ref={canvasRef}

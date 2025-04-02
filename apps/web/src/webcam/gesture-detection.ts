@@ -1,9 +1,9 @@
 import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
+import './styles.css';  
 
 const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
   );
-
 
   //제스처 인식
 export const gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
@@ -69,7 +69,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
       });
 
       // `handedness` 값을 가져와 사용
-      const handType = gestureResults.handedness[index]?.[0]?.displayName; // "Left" 또는 "Right"
+      const handType = gestureResults.handedness[index]?.[0]?.displayName;
   
       const categoryName = gestureResults.gestures[index]?.[0]?.categoryName;
       if (categoryName === "Thumb_Up") {
@@ -84,7 +84,13 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     // 2초 동안 유지
     if (rightThumbUp && leftThumbUp) {
       if (!bothThumbUpTimer) {
-        console.log("양손 Thumb Up 감지! 2초 유지하면 클릭");
+        console.log("양손 Thumb Up 감지!");
+        let currentElement = document.activeElement;
+
+        if (currentElement && currentElement.tagName === "A") {
+          currentElement.classList.add("animate-background");
+        }
+
         bothThumbUpTimer = setTimeout(() => {
           console.log("양손 Thumb Up 2초 유지됨! 현재 요소 클릭");
           triggerEnterKey();
