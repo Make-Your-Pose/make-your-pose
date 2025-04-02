@@ -19,10 +19,4 @@ export default defineConfig({
 
   // The output directory for your css system
   outdir: 'styled-system',
-
-  staticCss: {
-    patterns: {
-      srOnly: ['*'],
-    },
-  },
 });

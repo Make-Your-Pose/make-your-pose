@@ -4,7 +4,6 @@ export const gameMachine = setup({
   types: {
     context: {} as {
       hint: boolean[];
-      snapshot: number | null;
       round: number;
       score: number;
     },
@@ -18,10 +17,17 @@ export const gameMachine = setup({
     nextHint: assign({
       hint: ({ context }) => {
         const nextHint = context.hint.slice();
-        nextHint[Math.floor(Math.random() * 9)] = true;
+        const falseIndices = nextHint
+          .map((value, index) => (!value ? index : -1))
+          .filter((index) => index !== -1);
+        if (falseIndices.length > 0) {
+          const randomFalseIndex =
+            falseIndices[Math.floor(Math.random() * falseIndices.length)];
+          nextHint[randomFalseIndex] = true;
+        }
+        console.log(nextHint);
         return nextHint;
       },
-      snapshot: Date.now(),
     }),
     nextRound: assign({
       hint: () => [
@@ -54,7 +60,6 @@ export const gameMachine = setup({
     hint: [false, false, false, false, false, false, false, false, false],
     round: 0,
     score: 0,
-    snapshot: null,
   },
   initial: 'pending',
   states: {

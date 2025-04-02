@@ -11,6 +11,7 @@ export const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
     delegate: 'GPU',
   },
   runningMode: 'VIDEO',
+  outputSegmentationMasks: true,
 });
 
 export const answerLandmarker = await PoseLandmarker.createFromOptions(vision, {

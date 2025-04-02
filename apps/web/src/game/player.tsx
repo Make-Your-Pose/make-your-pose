@@ -1,9 +1,9 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
-import { useWebcam } from 'src/webcam/context';
 import Avatar from './avatar';
+import { useWebcam } from 'src/features/webcam/context';
 
-function Player() {
+export function Player() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { stream, poseLandmarkerResult } = useWebcam();
 
@@ -32,5 +32,3 @@ function Player() {
     </Canvas>
   );
 }
-
-export default Player;

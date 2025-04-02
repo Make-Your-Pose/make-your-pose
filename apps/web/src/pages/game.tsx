@@ -1,29 +1,18 @@
 import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router';
-import Player from 'src/game/player';
-// import {
-//   calculateAngleSimilarity,
-//   calculateCombinedSimilarity,
-//   calculateDistanceSimilarity,
-//   getPoseAngles,
-// } from 'src/pose/landmarks';
-import { useWebcam } from 'src/webcam/context';
-import { answerLandmarker } from 'src/webcam/pose-landmarker';
+import { Player } from 'src/game/player';
+import { answerLandmarker } from 'src/features/webcam/pose-landmarker';
 import { css } from '~styled-system/css';
 import { hstack, vstack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { useMachine } from '@xstate/react';
-import { gameMachine } from 'src/game/machine';
-import { createBrowserInspector } from '@statelyai/inspect';
+import { gameMachine } from 'src/features/game/machine';
 import { Hint } from 'src/game/hint';
 import { CircularProgressBar } from '../game/circular-progress-bar';
-
-const { inspect } = createBrowserInspector();
+import { inspect } from '../features/devtool/inspector';
+import { useWebcam } from 'src/features/webcam/context';
 
 function Game() {
-  // const navigate = useNavigate();
-
   const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
     null,
   );
@@ -54,31 +43,49 @@ function Game() {
     }
   }, [webcam.poseLandmarkerResult, answerPose]);
 
-  const [state, send] = useMachine(gameMachine, { inspect });
-
-  // const isPlaying = state.matches('playing');
-
-  // const endGame = () => {
-  //   navigate('/result');
-  // };
-
-  // const handleImageLoad: React.ReactEventHandler<HTMLImageElement> = async (
-  //   event,
-  // ) => {
-  //   await poseLandmarker.setOptions({ runningMode: 'IMAGE' });
-  //   const answerResult = poseLandmarker.detect(event.currentTarget);
-  //   setAnswerPose(answerResult);
-  //   console.log('Answer result:', answerResult);
-  // };
-
   const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
     const poseLandmarkerResult = answerLandmarker.detect(event.currentTarget);
     setAnswerPose(poseLandmarkerResult);
   };
 
+  const [state, send] = useMachine(gameMachine, { inspect });
+
+  const [hintTime, setHintTime] = useState<number | null>(null);
+  const hintDuration = 1000;
+
+  const isPlaying = state.matches('playing');
+
   useEffect(() => {
-    console.log(state);
-  }, [state]);
+    if (isPlaying) {
+      setHintTime(Date.now());
+    } else {
+      setHintTime(null);
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (hintTime === null) return;
+
+    let animationFrameId: number;
+
+    const updateTimer = () => {
+      const elapsedTime = Date.now() - hintTime;
+      const remainingTime = Math.max(0, hintDuration - elapsedTime);
+
+      if (remainingTime <= 0) {
+        setHintTime(Date.now());
+        send({ type: 'next' });
+      } else {
+        animationFrameId = requestAnimationFrame(updateTimer);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateTimer);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [hintTime, send]);
 
   return (
     <div>
@@ -202,10 +209,10 @@ function Game() {
             >
               Time Left
             </div>
-            {state.context.snapshot !== null ? (
+            {hintTime !== null ? (
               <CircularProgressBar
-                value={state.context.snapshot}
-                maxValue={3.0}
+                hintTime={hintTime}
+                hintDuration={hintDuration}
                 onFinish={() => send({ type: 'next' })}
               />
             ) : null}

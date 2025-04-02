@@ -1,41 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { css } from '~styled-system/css';
 
 // Circular progress bar component
 export const CircularProgressBar = ({
-  value,
-  maxValue,
+  hintTime,
+  hintDuration,
   onFinish,
 }: {
-  value: number;
-  maxValue: number;
+  hintTime: number;
+  hintDuration: number; // in milliseconds
   onFinish?: () => void;
 }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
-  const [remainingTime, setRemainingTime] = useState(maxValue);
+  const [remainingTime, setRemainingTime] = useState(hintDuration / 1000); // Convert ms to seconds
   const strokeDashoffset =
-    circumference - (remainingTime / maxValue) * circumference;
+    circumference - (remainingTime / (hintDuration / 1000)) * circumference;
+
+  // Add a ref for animation frame ID
+  const animationFrameId = useRef<number | null>(null);
+
+  // Reset remainingTime when hintTime changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    setRemainingTime(hintDuration / 1000);
+  }, [hintTime, hintDuration]);
 
   useEffect(() => {
-    // Set up interval to update every 0.01 seconds (10ms)
-    const intervalId = setInterval(() => {
+    // Animation function using requestAnimationFrame
+    const animate = () => {
       const currentTime = Date.now();
-      const elapsedTime = (currentTime - value) / 1000; // Convert to seconds
-      const remaining = Math.max(0, maxValue - elapsedTime);
+      const elapsedTime = (currentTime - hintTime) / 1000; // Convert to seconds
+      const remaining = Math.max(0, hintDuration / 1000 - elapsedTime);
 
       setRemainingTime(remaining);
 
-      // If timer reached zero, call onFinish and clear interval
+      // If timer reached zero, call onFinish and stop animation
       if (remaining <= 0) {
-        clearInterval(intervalId);
         if (onFinish) onFinish();
+        return;
       }
-    }, 10); // Update every 10ms for 0.01s precision
 
-    // Clean up interval on unmount
-    return () => clearInterval(intervalId);
-  }, [value, maxValue, onFinish]);
+      // Continue animation loop
+      animationFrameId.current = requestAnimationFrame(animate);
+    };
+
+    // Start animation
+    animationFrameId.current = requestAnimationFrame(animate);
+
+    // Clean up animation on unmount
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, [hintTime, hintDuration, onFinish]);
 
   return (
     <div
@@ -76,19 +95,6 @@ export const CircularProgressBar = ({
           strokeLinecap="round"
         />
       </svg>
-      <div
-        className={css({
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: '1.5rem',
-        })}
-      >
-        {remainingTime.toFixed(2)}
-      </div>
     </div>
   );
 };
