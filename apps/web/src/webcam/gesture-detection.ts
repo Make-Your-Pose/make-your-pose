@@ -1,5 +1,5 @@
 import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
-import './styles.css';  
+import '../styles.css';  
 
 const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
@@ -81,26 +81,37 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
       }
     });
   
-    // 2초 동안 유지
+    // 3초 동안 유지
     if (rightThumbUp && leftThumbUp) {
       if (!bothThumbUpTimer) {
         console.log("양손 Thumb Up 감지!");
         let currentElement = document.activeElement;
-
+    
         if (currentElement && currentElement.tagName === "A") {
-          currentElement.classList.add("animate-background");
+          // 애니메이션 시작 (배경이 아래에서 위로 차오름)
+          currentElement.classList.add("animate-background", "playing");
+          currentElement.classList.remove("stopped"); // 중단 상태 제거
         }
-
+    
+        // 3초 동안 유지될 때 타이머 설정
         bothThumbUpTimer = setTimeout(() => {
-          console.log("양손 Thumb Up 2초 유지됨! 현재 요소 클릭");
+          console.log("양손 Thumb Up 3초 유지됨! 현재 요소 클릭");
           triggerEnterKey();
           bothThumbUpTimer = null;
-        }, 2000);
+        }, 3000);
       }
     } else {
-      clearTimeout(bothThumbUpTimer);
+      clearTimeout(bothThumbUpTimer); // 타이머 초기화
       bothThumbUpTimer = null;
+    
+      let currentElement = document.activeElement;
+      if (currentElement && currentElement.classList.contains("animate-background")) {
+        // 양손 엄지손가락이 내려가면 애니메이션을 중단하고 반대로 처리
+        currentElement.classList.remove("playing");
+        currentElement.classList.add("stopped"); // 애니메이션을 반대로 설정
+      }
     }
+    
   
     if (rightThumbUp && !leftThumbUp) {
       if (!rightThumbUpTimer) {

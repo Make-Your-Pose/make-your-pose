@@ -6,7 +6,6 @@ import rightThumb from "../images/right-thumb.png";
 import leftThumb from "../images/left-thumb.png";
 import bothThumbs from "../images/both-thumbs.png";
 import testUser from "../images/test-user.png";
-import leftChevron from "../images/lefi-arrow-chevron.png";
 import rightChevron from "../images/right-arrow-chevron.png";
 
 const backgroundStyle = css({ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", height: "100vh", textAlign: "center", padding: "40px 0", backgroundColor: "gray" });
