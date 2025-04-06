@@ -21,12 +21,46 @@ export function Hint({ hint }: Props) {
           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           key={index}
           style={{
-            backgroundColor: '#e0e0e0',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            opacity: isVisible ? 0 : 1,
+            position: 'relative',
+            perspective: '1000px', // Add perspective for 3D effect
           }}
-        />
+        >
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              transition: 'transform 0.6s',
+              transformStyle: 'preserve-3d',
+              transform: isVisible ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            }}
+          >
+            {/* Front face (visible when hint is not revealed) */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#e0e0e0',
+                borderRadius: '4px',
+                backfaceVisibility: 'hidden',
+              }}
+            />
+
+            {/* Back face (visible when hint is revealed) */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'transparent',
+                borderRadius: '4px',
+                backfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+              }}
+            />
+          </div>
+        </div>
       ))}
     </div>
   );
