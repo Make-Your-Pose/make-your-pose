@@ -52,6 +52,30 @@ function Game() {
   const isPlaying = state.matches('playing');
   const isGameOver = state.matches('gameOver');
 
+  // Add effect to check similarity score and send pass event when high enough
+  useEffect(() => {
+    if (isPlaying && combinedSimilarity !== null) {
+      const checkSimilarity = () => {
+        const score = Math.round(combinedSimilarity * 100);
+        console.log('Checking similarity:', score);
+        if (score >= 80) {
+          console.log('Sending pass event', score);
+          send({ type: 'pass', score });
+        }
+      };
+
+      // Check immediately
+      checkSimilarity();
+
+      // Set up interval to check periodically
+      const intervalId = setInterval(checkSimilarity, 500);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [isPlaying, combinedSimilarity, send]);
+
   useEffect(() => {
     if (isPlaying) {
       setHintTime(Date.now());
