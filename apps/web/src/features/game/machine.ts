@@ -6,6 +6,7 @@ export const gameMachine = setup({
       hint: boolean[];
       round: number;
       score: number;
+      maxRound: number;
     },
     events: {} as
       | { type: 'timeout' }
@@ -25,7 +26,6 @@ export const gameMachine = setup({
             falseIndices[Math.floor(Math.random() * falseIndices.length)];
           nextHint[randomFalseIndex] = true;
         }
-        console.log(nextHint);
         return nextHint;
       },
     }),
@@ -46,7 +46,8 @@ export const gameMachine = setup({
   },
   guards: {
     isRoundFinished: ({ context }) => context.hint.every((hint) => hint),
-    isGameFinished: ({ context }) => context.round >= 10,
+    isGameFinished: ({ context }) => context.round >= context.maxRound,
+    canProceedNextRound: ({ context }) => context.round + 1 < context.maxRound,
   },
   delays: {
     playDelay: 1000,
@@ -60,6 +61,7 @@ export const gameMachine = setup({
     hint: [false, false, false, false, false, false, false, false, false],
     round: 0,
     score: 0,
+    maxRound: 1,
   },
   initial: 'pending',
   states: {
@@ -95,19 +97,34 @@ export const gameMachine = setup({
     },
     answer: {
       after: {
-        nextRoundDelay: {
-          target: 'playing',
-          actions: ['nextRound'],
-        },
+        nextRoundDelay: [
+          {
+            guard: 'canProceedNextRound',
+            target: 'playing',
+            actions: ['nextRound'],
+          },
+          {
+            target: 'gameOver',
+          },
+        ],
       },
     },
     wrong: {
       after: {
-        nextRoundDelay: {
-          target: 'playing',
-          actions: ['nextRound'],
-        },
+        nextRoundDelay: [
+          {
+            guard: 'canProceedNextRound',
+            target: 'playing',
+            actions: ['nextRound'],
+          },
+          {
+            target: 'gameOver',
+          },
+        ],
       },
+    },
+    gameOver: {
+      type: 'final',
     },
   },
 });

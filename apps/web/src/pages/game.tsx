@@ -1,59 +1,56 @@
-import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { useEffect, useState } from 'react';
-import { Player } from 'src/game/player';
-import { answerLandmarker } from 'src/features/webcam/pose-landmarker';
 import { css } from '~styled-system/css';
 import { hstack, vstack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { useMachine } from '@xstate/react';
 import { gameMachine } from 'src/features/game/machine';
-import { Hint } from 'src/game/hint';
-import { CircularProgressBar } from '../game/circular-progress-bar';
+import { Hint } from 'src/features/game/components/hint';
+import { CircularProgressBar } from '../features/game/components/circular-progress-bar';
 import { inspect } from '../features/devtool/inspector';
 import { useWebcam } from 'src/features/webcam/context';
+import { WebcamPlayer } from 'src/features/game/components/webcam-player';
+import {
+  calculateAngleSimilarity,
+  calculateCombinedSimilarity,
+  calculateDistanceSimilarity,
+  getPoseAngles,
+} from 'src/pose/landmarks';
+
+import answers from '../data/1-sports';
+import { useNavigate } from 'react-router';
 
 function Game() {
-  const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
+  const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
     null,
   );
-
   const webcam = useWebcam();
-
-  useEffect(() => {
-    if (answerPose?.landmarks[0] && webcam.poseLandmarkerResult?.landmarks[0]) {
-      // const distanceSimilarity = calculateDistanceSimilarity(
-      //   answerPose.landmarks[0],
-      //   webcam.poseLandmarkerResult.landmarks[0],
-      // );
-      // // console.log('distanceSimilarity:', distanceSimilarity);
-      // const answerAngles = getPoseAngles(answerPose.landmarks[0]);
-      // const userAngles = getPoseAngles(
-      //   webcam.poseLandmarkerResult.landmarks[0],
-      // );
-      // const angleSimilarity = calculateAngleSimilarity(
-      //   answerAngles,
-      //   userAngles,
-      // );
-      // console.log('angleSimilarity:', angleSimilarity);
-      // const combinedSimilarity = calculateCombinedSimilarity(
-      //   distanceSimilarity,
-      //   angleSimilarity,
-      // );
-      // console.log('combinedSimilarity:', combinedSimilarity);
-    }
-  }, [webcam.poseLandmarkerResult, answerPose]);
-
-  const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
-    const poseLandmarkerResult = answerLandmarker.detect(event.currentTarget);
-    setAnswerPose(poseLandmarkerResult);
-  };
+  const navigate = useNavigate();
 
   const [state, send] = useMachine(gameMachine, { inspect });
+
+  const answer = answers[state.context.round];
+
+  useEffect(() => {
+    if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
+      const distance = calculateDistanceSimilarity(
+        answer.landmarks,
+        webcam.poseLandmarkerResult.landmarks[0],
+      );
+      const answerAngles = getPoseAngles(answer.landmarks);
+      const userAngles = getPoseAngles(
+        webcam.poseLandmarkerResult.landmarks[0],
+      );
+      const angle = calculateAngleSimilarity(answerAngles, userAngles);
+      const combined = calculateCombinedSimilarity(distance, angle);
+      setCombinedSimilarity(combined);
+    }
+  }, [webcam.poseLandmarkerResult, answer]);
 
   const [hintTime, setHintTime] = useState<number | null>(null);
   const hintDuration = 1000;
 
   const isPlaying = state.matches('playing');
+  const isGameOver = state.matches('gameOver');
 
   useEffect(() => {
     if (isPlaying) {
@@ -62,6 +59,12 @@ function Game() {
       setHintTime(null);
     }
   }, [isPlaying]);
+
+  useEffect(() => {
+    if (isGameOver) {
+      navigate('/result');
+    }
+  }, [isGameOver, navigate]);
 
   useEffect(() => {
     if (hintTime === null) return;
@@ -152,7 +155,7 @@ function Game() {
             })}
           >
             <img
-              src="./00008.jpg"
+              src={answer.image}
               width="100%"
               alt=""
               className={css({
@@ -164,7 +167,6 @@ function Game() {
                 objectFit: 'cover',
                 objectPosition: 'center',
               })}
-              onLoad={handleLoad}
             />
 
             <Hint hint={state.context.hint} />
@@ -190,30 +192,18 @@ function Game() {
           <div
             className={vstack({
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '1',
-              px: '12',
-              py: '4',
-              borderRadius: 'xl',
-              backdropFilter: 'auto',
-              backdropBlur: '2xl',
-              bgColor: 'rgba(0, 0, 0, 0.3)',
-              mt: '200px',
+              width: '300px',
+              flex: '1',
             })}
           >
-            <div
-              className={css({
-                color: 'white',
-                fontWeight: 'bold',
-                textStyle: 'lg',
-              })}
-            >
-              Time Left
-            </div>
             {hintTime !== null ? (
               <CircularProgressBar
                 hintTime={hintTime}
                 hintDuration={hintDuration}
                 onFinish={() => send({ type: 'next' })}
+                similarity={combinedSimilarity}
               />
             ) : null}
           </div>
@@ -253,7 +243,8 @@ function Game() {
               backdropBlur: 'md',
             })}
           >
-            <Player />
+            <WebcamPlayer />
+            {/* <Player /> */}
           </div>
         </div>
       </div>

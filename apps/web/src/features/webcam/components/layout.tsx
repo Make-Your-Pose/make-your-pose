@@ -60,9 +60,6 @@ export function GlobalLayout() {
     detectPose();
   };
 
-  const Mask = poseLandmarkerResult?.segmentationMasks?.[0];
-
-  console.log(Mask);
   return (
     <WebcamContext.Provider value={{ stream, poseLandmarkerResult }}>
       <Outlet />

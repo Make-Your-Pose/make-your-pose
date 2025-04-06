@@ -6,12 +6,14 @@ export const CircularProgressBar = ({
   hintTime,
   hintDuration,
   onFinish,
+  similarity,
 }: {
   hintTime: number;
   hintDuration: number; // in milliseconds
   onFinish?: () => void;
+  similarity?: number | null;
 }) => {
-  const radius = 50;
+  const radius = 145;
   const circumference = 2 * Math.PI * radius;
   const [remainingTime, setRemainingTime] = useState(hintDuration / 1000); // Convert ms to seconds
   const strokeDashoffset =
@@ -60,8 +62,8 @@ export const CircularProgressBar = ({
     <div
       className={css({
         position: 'relative',
-        width: '120px',
-        height: '120px',
+        width: '300px',
+        height: '300px',
       })}
     >
       {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
@@ -71,12 +73,12 @@ export const CircularProgressBar = ({
           width: '100%',
           height: '100%',
         })}
-        viewBox="0 0 120 120"
+        viewBox="0 0 300 300"
       >
         {/* Background circle */}
         <circle
-          cx="60"
-          cy="60"
+          cx="150"
+          cy="150"
           r={radius}
           fill="transparent"
           stroke="rgba(255,255,255,0.2)"
@@ -84,8 +86,8 @@ export const CircularProgressBar = ({
         />
         {/* Foreground circle (progress) */}
         <circle
-          cx="60"
-          cy="60"
+          cx="150"
+          cy="150"
           r={radius}
           fill="transparent"
           stroke="white"
@@ -95,6 +97,24 @@ export const CircularProgressBar = ({
           strokeLinecap="round"
         />
       </svg>
+
+      {/* Add similarity percentage in the center */}
+      {similarity !== undefined && similarity !== null && (
+        <div
+          className={css({
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '100px',
+          })}
+        >
+          {Math.round(similarity * 100)}%
+        </div>
+      )}
     </div>
   );
 };
