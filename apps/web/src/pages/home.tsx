@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router"; 
 import { css } from "~styled-system/css";
 import { stack } from '~styled-system/patterns';
-import { useGesture } from "../webcam/GestureProvider";
+import { useGesture } from "../features/webcam/GestureProvider";
 import bg1 from '../images/bg-1.png';
 
 const backgroundStyle = css({ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", height: "100vh", backgroundColor: "gray" });

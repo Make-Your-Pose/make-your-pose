@@ -1,5 +1,5 @@
 import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
-import '../styles.css';  
+import '../../styles.css';
 
 const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"

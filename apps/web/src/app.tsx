@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router';
-
 import Game from './pages/game';
 import Home from './pages/home';
 import Tutorial from './pages/tutorial';
@@ -8,7 +7,7 @@ import Lobby from './pages/lobby';
 import Result from './pages/result';
 import { DevtoolMachineContext } from './features/devtool/machine';
 import { GlobalLayout } from './features/webcam/components/layout';
-import { GestureProvider } from './webcam/GestureProvider';
+import { GestureProvider } from './features/webcam/GestureProvider';
 import './styles.css'
 
 function FocusOnFirstElement() {
