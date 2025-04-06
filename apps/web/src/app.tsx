@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router';
+
 import Game from './pages/game';
 import Home from './pages/home';
+import Tutorial from './pages/tutorial';
 import Lobby from './pages/lobby';
 import Result from './pages/result';
-import WebcamLayout from './webcam/layout';
+import { DevtoolMachineContext } from './features/devtool/machine';
+import { GlobalLayout } from './features/webcam/components/layout';
 import { GestureProvider } from './webcam/GestureProvider';
-import Tutorial from './pages/tutorial';
 import './styles.css'
 
 function FocusOnFirstElement() {
@@ -31,20 +33,22 @@ function FocusOnFirstElement() {
 
 function App() {
   return (
-    <GestureProvider>
-    <MemoryRouter>
-    <FocusOnFirstElement />
-      <Routes>
-      <Route index element={<Home />} />
-      <Route path="tutorial" element={<Tutorial/>}/>
-      <Route path="/lobby" element={<Lobby />} />
-      <Route path="/result" element={<Result />} />
-        <Route element={<WebcamLayout />}>
-          <Route path="/game" element={<Game />} />
-        </Route>
-      </Routes>
-    </MemoryRouter>
-    </GestureProvider>
+    <DevtoolMachineContext.Provider>
+       <GestureProvider>
+        <BrowserRouter>
+        <FocusOnFirstElement />
+          <Routes>
+            <Route element={<GlobalLayout />}>
+              <Route index element={<Home />} />
+              <Route path="tutorial" element={<Tutorial/>}/>
+              <Route path="/lobby" element={<Lobby />} />
+              <Route path="/game" element={<Game />} />
+              <Route path="/result" element={<Result />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </GestureProvider>  
+    </DevtoolMachineContext.Provider>
   );
 }
 

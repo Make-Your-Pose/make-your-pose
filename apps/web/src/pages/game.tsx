@@ -1,150 +1,121 @@
-import type { PoseLandmarkerResult } from '@mediapipe/tasks-vision';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import Player from 'src/game/player';
+import { css } from '~styled-system/css';
+import { hstack, vstack } from '~styled-system/patterns';
+import bg1 from '../images/bg-1.png';
+import { useMachine } from '@xstate/react';
+import { gameMachine } from 'src/features/game/machine';
+import { Hint } from 'src/features/game/components/hint';
+import { CircularProgressBar } from '../features/game/components/circular-progress-bar';
+import { inspect } from '../features/devtool/inspector';
+import { useWebcam } from 'src/features/webcam/context';
+import { WebcamPlayer } from 'src/features/game/components/webcam-player';
 import {
   calculateAngleSimilarity,
   calculateCombinedSimilarity,
   calculateDistanceSimilarity,
   getPoseAngles,
 } from 'src/pose/landmarks';
-import { useWebcam } from 'src/webcam/context';
-import { answerLandmarker } from 'src/webcam/pose-landmarker';
-import { css } from '~styled-system/css';
-import { hstack, vstack } from '~styled-system/patterns';
-import bg1 from '../images/bg-1.png';
+
+import answers from '../data/1-sports';
+import { useNavigate } from 'react-router';
 
 function Game() {
-  const navigate = useNavigate();
-
-  const [score, setScore] = useState(0);
-  const [answerPose, setAnswerPose] = useState<PoseLandmarkerResult | null>(
+  const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
     null,
   );
-
   const webcam = useWebcam();
+  const navigate = useNavigate();
+
+  const [state, send] = useMachine(gameMachine, { inspect });
+
+  const answer = answers[state.context.round];
 
   useEffect(() => {
-    if (answerPose?.landmarks[0] && webcam.poseLandmarkerResult?.landmarks[0]) {
-      const distanceSimilarity = calculateDistanceSimilarity(
-        answerPose.landmarks[0],
+    if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
+      const distance = calculateDistanceSimilarity(
+        answer.landmarks,
         webcam.poseLandmarkerResult.landmarks[0],
       );
-      console.log('distanceSimilarity:', distanceSimilarity);
-
-      const answerAngles = getPoseAngles(answerPose.landmarks[0]);
+      const answerAngles = getPoseAngles(answer.landmarks);
       const userAngles = getPoseAngles(
         webcam.poseLandmarkerResult.landmarks[0],
       );
-      const angleSimilarity = calculateAngleSimilarity(
-        answerAngles,
-        userAngles,
-      );
-      console.log('angleSimilarity:', angleSimilarity);
-
-      const combinedSimilarity = calculateCombinedSimilarity(
-        distanceSimilarity,
-        angleSimilarity,
-      );
-      console.log('combinedSimilarity:', combinedSimilarity);
+      const angle = calculateAngleSimilarity(answerAngles, userAngles);
+      const combined = calculateCombinedSimilarity(distance, angle);
+      setCombinedSimilarity(combined);
     }
-  }, [webcam.poseLandmarkerResult, answerPose]);
+  }, [webcam.poseLandmarkerResult, answer]);
 
-  // useEffect(() => {
-  //   console.log(webcam.stream);
-  // }, [webcam.stream]);
+  const [hintTime, setHintTime] = useState<number | null>(null);
+  const hintDuration = 1000;
 
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const context = canvas?.getContext('2d');
+  const isPlaying = state.matches('playing');
+  const isGameOver = state.matches('gameOver');
 
-  //   const render = async () => {
-  //     if (video && context && canvas) {
-  //       context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // Add effect to check similarity score and send pass event when high enough
+  useEffect(() => {
+    if (isPlaying && combinedSimilarity !== null) {
+      const checkSimilarity = () => {
+        const score = Math.round(combinedSimilarity * 100);
+        console.log('Checking similarity:', score);
+        if (score >= 80) {
+          console.log('Sending pass event', score);
+          send({ type: 'pass', score });
+        }
+      };
 
-  //       await poseLandmarker.setOptions({ runningMode: 'VIDEO' });
-  //       const result = poseLandmarker.detectForVideo(
-  //         video,
-  //         startTimeMs.current,
-  //       );
+      // Check immediately
+      checkSimilarity();
 
-  //       const drawingUtils = new DrawingUtils(context);
-  //       for (const landmark of result.landmarks) {
-  //         drawingUtils.drawLandmarks(landmark, {
-  //           // biome-ignore lint/style/noNonNullAssertion: <explanation>
-  //           radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1),
-  //         });
-  //         drawingUtils.drawConnectors(
-  //           landmark,
-  //           PoseLandmarker.POSE_CONNECTIONS,
-  //         );
-  //       }
+      // Set up interval to check periodically
+      const intervalId = setInterval(checkSimilarity, 500);
 
-  //       requestAnimationFrame(render);
-  //     }
-  //   };
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [isPlaying, combinedSimilarity, send]);
 
-  //   render();
+  useEffect(() => {
+    if (isPlaying) {
+      setHintTime(Date.now());
+    } else {
+      setHintTime(null);
+    }
+  }, [isPlaying]);
 
-  //   return () => {
-  //     if (streamRef.current) {
-  //       for (const track of streamRef.current.getTracks()) {
-  //         track.stop();
-  //       }
-  //     }
-  //   };
-  // }, []);
+  useEffect(() => {
+    if (isGameOver) {
+      navigate('/result');
+    }
+  }, [isGameOver, navigate]);
 
-  const addScore = () => {
-    setScore(score + 100);
-  };
+  useEffect(() => {
+    if (hintTime === null) return;
 
-  const endGame = () => {
-    navigate('/result', { state: { score: score } });
-  };
+    let animationFrameId: number;
 
-  // const handleImageLoad: React.ReactEventHandler<HTMLImageElement> = async (
-  //   event,
-  // ) => {
-  //   await poseLandmarker.setOptions({ runningMode: 'IMAGE' });
-  //   const answerResult = poseLandmarker.detect(event.currentTarget);
-  //   setAnswerPose(answerResult);
-  //   console.log('Answer result:', answerResult);
-  // };
+    const updateTimer = () => {
+      const elapsedTime = Date.now() - hintTime;
+      const remainingTime = Math.max(0, hintDuration - elapsedTime);
 
-  const handleLoad: React.ReactEventHandler<HTMLImageElement> = (event) => {
-    const poseLandmarkerResult = answerLandmarker.detect(event.currentTarget);
-    setAnswerPose(poseLandmarkerResult);
-  };
+      if (remainingTime <= 0) {
+        setHintTime(Date.now());
+        send({ type: 'next' });
+      } else {
+        animationFrameId = requestAnimationFrame(updateTimer);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateTimer);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [hintTime, send]);
 
   return (
     <div>
-      <Player />
-      <div className={css({ srOnly: true, position: 'relative' })}>
-        <img src="./00008.jpg" width="100%" alt="" onLoad={handleLoad} />
-      </div>
-      <div className={hstack({ my: '8', srOnly: true })}>
-        <button
-          type="button"
-          className={css({
-            bg: 'blue.500',
-            p: '2',
-          })}
-          onClick={addScore}
-        >
-          Add 100 to Score
-        </button>
-        <button
-          type="button"
-          className={css({
-            bg: 'blue.500',
-            p: '2',
-          })}
-          onClick={endGame}
-        >
-          End
-        </button>
-      </div>
       <div
         className={css({
           position: 'fixed',
@@ -190,7 +161,7 @@ function Game() {
               bgColor: 'rgba(0, 0, 0, 0.1)',
             })}
           >
-            Round 1
+            Round {state.context.round + 1}
           </div>
           <div
             className={css({
@@ -198,13 +169,32 @@ function Game() {
               borderRadius: '2xl',
               border: '1px solid',
               borderColor: 'white',
-              width: '300px',
+              width: '600px',
+              overflow: 'hidden',
+              position: 'relative',
 
               bgColor: 'rgba(0, 0, 0, 0.1)',
               backdropFilter: 'auto',
               backdropBlur: 'md',
             })}
-          />
+          >
+            <img
+              src={answer.image}
+              width="100%"
+              alt=""
+              className={css({
+                position: 'absolute',
+                inset: 0,
+                display: 'block',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              })}
+            />
+
+            <Hint hint={state.context.hint} />
+          </div>
         </div>
         <div className={vstack({ gap: '4', height: '100%' })}>
           <div
@@ -219,8 +209,27 @@ function Game() {
           >
             Score
             <div className={css({ textStyle: '2xl', fontWeight: 'bold' })}>
-              {score}
+              {state.context.score}
             </div>
+          </div>
+
+          <div
+            className={vstack({
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1',
+              width: '300px',
+              flex: '1',
+            })}
+          >
+            {hintTime !== null ? (
+              <CircularProgressBar
+                hintTime={hintTime}
+                hintDuration={hintDuration}
+                onFinish={() => send({ type: 'next' })}
+                similarity={combinedSimilarity}
+              />
+            ) : null}
           </div>
         </div>
         <div className={vstack({ gap: '4', height: '100%' })}>
@@ -250,13 +259,17 @@ function Game() {
               borderRadius: '2xl',
               border: '1px solid',
               borderColor: 'white',
-              width: '300px',
+              width: '600px',
+              overflow: 'hidden',
 
               bgColor: 'rgba(0, 0, 0, 0.1)',
               backdropFilter: 'auto',
               backdropBlur: 'md',
             })}
-          />
+          >
+            <WebcamPlayer />
+            {/* <Player /> */}
+          </div>
         </div>
       </div>
     </div>
