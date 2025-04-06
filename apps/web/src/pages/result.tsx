@@ -1,16 +1,38 @@
 import { css } from '~styled-system/css';
 import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
+import { useState, useEffect } from 'react';
 
-const data = [
-  {
-    id: 'id1',
-    username: 'heeryong',
-    score: 2800,
-  },
-];
+// Type for the data items
+type RankingItem = {
+  id: string;
+  username: string;
+  score: number;
+};
 
 function Result() {
+  const [data, setData] = useState<RankingItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/rankings/sports');
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const fetchedData = await response.json();
+        setData(fetchedData);
+      } catch (error) {
+        console.error('Error fetching ranking data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div>
       <div
@@ -73,25 +95,35 @@ function Result() {
               backdropBlur: 'md',
             })}
           >
-            {data.map((item, index) => (
+            {isLoading ? (
               <div
-                key={item.id}
-                className={hstack({
-                  p: '4',
-                  borderBottom: '1px solid',
-                  borderColor: 'white',
-                  color: 'white',
-                })}
+                className={css({ color: 'white', p: '4', textAlign: 'center' })}
               >
-                <div className={css({ px: '2', fontWeight: 'bold' })}>
-                  {index + 1}
-                </div>
-                <div className={css({ flex: 1, fontWeight: 'bold' })}>
-                  {item.username}
-                </div>
-                <div className={css({ fontWeight: 'bold' })}>{item.score}</div>
+                Loading data...
               </div>
-            ))}
+            ) : (
+              data.map((item, index) => (
+                <div
+                  key={item.id}
+                  className={hstack({
+                    p: '4',
+                    borderBottom: '1px solid',
+                    borderColor: 'white',
+                    color: 'white',
+                  })}
+                >
+                  <div className={css({ px: '2', fontWeight: 'bold' })}>
+                    {index + 1}
+                  </div>
+                  <div className={css({ flex: 1, fontWeight: 'bold' })}>
+                    {item.username}
+                  </div>
+                  <div className={css({ fontWeight: 'bold' })}>
+                    {item.score}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
