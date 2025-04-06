@@ -5,9 +5,9 @@ import { useState, useEffect } from 'react';
 
 // Type for the data items
 type RankingItem = {
-  id: string;
-  username: string;
-  score: number;
+  ID: string;
+  Username: string;
+  Score: number;
 };
 
 function Result() {
@@ -104,7 +104,7 @@ function Result() {
             ) : (
               data.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.ID}
                   className={hstack({
                     p: '4',
                     borderBottom: '1px solid',
@@ -116,10 +116,10 @@ function Result() {
                     {index + 1}
                   </div>
                   <div className={css({ flex: 1, fontWeight: 'bold' })}>
-                    {item.username}
+                    {item.Username}
                   </div>
                   <div className={css({ fontWeight: 'bold' })}>
-                    {item.score}
+                    {item.Score}
                   </div>
                 </div>
               ))
