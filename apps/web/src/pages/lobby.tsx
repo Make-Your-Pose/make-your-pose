@@ -12,7 +12,6 @@ const categoryNameEng = css({ textStyle: '2xl', fontWeight: 'bold' });
 function Lobby() {
   return (
     <div className={backgroundStyle}>
-    {/* <div className={container()}> */}
         <div
           className={css({
             position: 'fixed',

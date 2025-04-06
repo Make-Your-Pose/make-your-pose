@@ -61,12 +61,12 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
   
     //손 랜드마크 시각화
     gestureResults.landmarks.forEach((hand, index) => {
-      hand.forEach((point) => {
-        ctx.beginPath();
-        ctx.arc(point.x * canvas.width, point.y * canvas.height, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = "red";
-        ctx.fill();
-      });
+      // hand.forEach((point) => {
+      //   ctx.beginPath();
+      //   ctx.arc(point.x * canvas.width, point.y * canvas.height, 5, 0, 2 * Math.PI);
+      //   ctx.fillStyle = "red";
+      //   ctx.fill();
+      // });
 
       // `handedness` 값을 가져와 사용
       const handType = gestureResults.handedness[index]?.[0]?.displayName;
@@ -146,7 +146,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
   function moveFocus(forward = true) {
     const focusableElements = Array.from(
       document.querySelectorAll(
-        'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'a, button, input, select, textarea'
       )
     );
   
@@ -160,6 +160,13 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
     } else {
       nextIndex = (currentIndex - 1 + focusableElements.length) % focusableElements.length; //이전 요소 (첫 번째면 마지막으로)
     }
+
+    // const nextElement = focusableElements[nextIndex];
+
+    // // Carousel.Item 내의 a 태그를 제외하고 포커스 이동
+    // if (nextElement.closest("carousel::r1::item-group")) {
+    //   nextElement.setAttribute('tabIndex', '-1'); // Carousel 내 a 태그는 포커스 방지
+    // }
   
     focusableElements[nextIndex].focus();
   }
