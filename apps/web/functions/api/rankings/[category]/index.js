@@ -13,6 +13,14 @@ export async function onRequestGet(context) {
       });
     }
 
+    // Query to get all tables in the database
+    const { results: tables } = await db.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table'"
+    ).all();
+
+    // Log all available tables to the console
+    console.log("Available tables in the database:", tables);
+
     // Execute the query to get top 10 entries for the specified category
     const { results } = await db.prepare(
       "SELECT ID, Category, Username, Score FROM Leaderboards WHERE Category = ? ORDER BY Score DESC LIMIT 10"
