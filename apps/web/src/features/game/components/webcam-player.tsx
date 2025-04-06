@@ -52,7 +52,6 @@ export function WebcamPlayer() {
           // --- 4. 마스크 데이터 가져오기 (Array 형태로) ---
           let maskBuffer: Float32Array | Uint8Array;
           let maskType = '';
-          const convertedMaskData = null;
 
           try {
             console.log('마스크 처리 시작...');
