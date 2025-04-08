@@ -10,19 +10,23 @@ import { inspect } from '../features/devtool/inspector';
 import { useWebcam } from 'src/features/webcam/context';
 import { WebcamPlayer } from 'src/features/game/components/webcam-player';
 import {
-  calculateAngleSimilarity,
-  calculateCombinedSimilarity,
-  calculateDistanceSimilarity,
-  getPoseAngles,
+  // calculateAngleSimilarity,
+  // calculateCombinedSimilarity,
+  // calculateDistanceSimilarity,
+  // getPoseAngles,
+  calculateCosineSimilarity,
 } from 'src/pose/landmarks';
 
 import answers from '../data/1-sports';
 import { useNavigate } from 'react-router';
 
 function Game() {
-  const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
-    null,
-  );
+  // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
+  //   null,
+  // );
+  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>( // cosineSimilarity
+        null,
+     );
   const webcam = useWebcam();
   const navigate = useNavigate();
 
@@ -32,33 +36,40 @@ function Game() {
 
   useEffect(() => {
     if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
-      const distance = calculateDistanceSimilarity(
+      // const distance = calculateDistanceSimilarity(
+      //   answer.landmarks,
+      //   webcam.poseLandmarkerResult.landmarks[0],
+      // );
+      // const answerAngles = getPoseAngles(answer.landmarks);
+      // const userAngles = getPoseAngles(
+      //   webcam.poseLandmarkerResult.landmarks[0],
+      // );
+      // const angle = calculateAngleSimilarity(answerAngles, userAngles);
+      // const combined = calculateCombinedSimilarity(distance, angle);
+      // setCombinedSimilarity(combined);
+      
+      const cosine = calculateCosineSimilarity(
         answer.landmarks,
-        webcam.poseLandmarkerResult.landmarks[0],
+        webcam.poseLandmarkerResult.landmarks[0]
       );
-      const answerAngles = getPoseAngles(answer.landmarks);
-      const userAngles = getPoseAngles(
-        webcam.poseLandmarkerResult.landmarks[0],
-      );
-      const angle = calculateAngleSimilarity(answerAngles, userAngles);
-      const combined = calculateCombinedSimilarity(distance, angle);
-      setCombinedSimilarity(combined);
+      setCosineSimilarity(cosine); // cosineSimilarity 상태 업데이트
     }
   }, [webcam.poseLandmarkerResult, answer]);
 
   const [hintTime, setHintTime] = useState<number | null>(null);
-  const hintDuration = 1000;
+  const hintDuration = 10000;
 
   const isPlaying = state.matches('playing');
   const isGameOver = state.matches('gameOver');
 
+  // combinedSimularity 전부 cosineSimilarity로 대체
   // Add effect to check similarity score and send pass event when high enough
   useEffect(() => {
-    if (isPlaying && combinedSimilarity !== null) {
+    if (isPlaying && cosineSimilarity !== null) {
       const checkSimilarity = () => {
-        const score = Math.round(combinedSimilarity * 100);
+        const score = Math.round(cosineSimilarity*100);
         console.log('Checking similarity:', score);
-        if (score >= 80) {
+        if (score >= 85) {
           console.log('Sending pass event', score);
           send({ type: 'pass', score });
         }
@@ -74,7 +85,7 @@ function Game() {
         clearInterval(intervalId);
       };
     }
-  }, [isPlaying, combinedSimilarity, send]);
+  }, [isPlaying, cosineSimilarity, send]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -227,7 +238,7 @@ function Game() {
                 hintTime={hintTime}
                 hintDuration={hintDuration}
                 onFinish={() => send({ type: 'next' })}
-                similarity={combinedSimilarity}
+                similarity={cosineSimilarity} //combinedSimilarity를 cosineSimilarity로 대체
               />
             ) : null}
           </div>

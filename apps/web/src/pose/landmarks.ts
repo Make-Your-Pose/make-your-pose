@@ -162,3 +162,88 @@ export function getPoseAngles(landmarks: NormalizedLandmark[]) {
   // }
   return angles;
 }
+
+export function calculateCosineSimilarity(
+      landmarks1: NormalizedLandmark[],
+      landmarks2: NormalizedLandmark[],
+) {
+  const {
+    main: main1,
+    face: face1,
+    handsFeet: handsFeet1,
+  } = splitLandmarks(landmarks1);
+  const {
+    main: main2,
+    face: face2,
+    handsFeet: handsFeet2,
+  } = splitLandmarks(landmarks2);
+
+  let allLandmarks1 = [...main1, ...face1, ...handsFeet1];
+  let allLandmarks2 = [...main2, ...face2, ...handsFeet2];
+
+  let normLandmarks1 = normalizeVector(allLandmarks1);
+  let normLandmarks2 = normalizeVector(allLandmarks2);
+
+  let dotProduct = 0;
+  let magnitude1 = 0;
+  let magnitude2 = 0;
+
+  for (let i = 0; i < normLandmarks1.length; i++) {
+    let weight = 1.0;
+    if (i >= main1.length && i < main1.length + face1.length)
+      weight = 0.2; // 얼굴 중요도 낮춤
+    if (i >= main1.length + face1.length) weight = 1.0; // 손, 발 중요도 증가
+
+    dotProduct +=
+      (normLandmarks1[i].x * normLandmarks2[i].x +
+        normLandmarks1[i].y * normLandmarks2[i].y +
+        normLandmarks1[i].z * normLandmarks2[i].z) * // Z값 포함
+      weight;
+
+    magnitude1 +=
+      (normLandmarks1[i].x ** 2 +
+        normLandmarks1[i].y ** 2 +
+        normLandmarks1[i].z ** 2) *
+      weight;
+    magnitude2 +=
+      (normLandmarks2[i].x ** 2 +
+        normLandmarks2[i].y ** 2 +
+        normLandmarks2[i].z ** 2) *
+      weight;
+
+      console.log(magnitude1, magnitude2);
+  }
+
+  let cosineSimilarity =
+    dotProduct / (Math.sqrt(magnitude1) * Math.sqrt(magnitude2));
+  return Math.max(0, Math.min(1, cosineSimilarity));
+
+}
+
+// 벡터 정규화
+function normalizeVector(landmarks) {
+  let meanX =
+    landmarks.reduce((sum, lm) => sum + lm.x, 0) / landmarks.length;
+  let meanY =
+    landmarks.reduce((sum, lm) => sum + lm.y, 0) / landmarks.length;
+  let meanZ =
+    landmarks.reduce((sum, lm) => sum + (lm.z || 0), 0) /
+    landmarks.length; // Z값 추가
+
+  let norm = Math.sqrt(
+    landmarks.reduce(
+      (sum, lm) =>
+        sum +
+        (lm.x - meanX) ** 2 +
+        (lm.y - meanY) ** 2 +
+        (lm.z || 0 - meanZ) ** 2, // Z값 추가
+      0
+    )
+  );
+
+  return landmarks.map((lm) => ({
+    x: (lm.x - meanX) / norm,
+    y: (lm.y - meanY) / norm,
+    z: (lm.z || 0 - meanZ) / norm, // Z값 정규화
+  }));
+}

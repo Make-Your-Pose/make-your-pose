@@ -150,6 +150,7 @@ export function WebcamPlayer() {
           height: '100%',
           objectFit: 'cover',
           zIndex: 1,
+          transform: 'scaleX(-1)',
         })}
       />
       <canvas
@@ -162,6 +163,7 @@ export function WebcamPlayer() {
           height: '100%',
           objectFit: 'cover',
           zIndex: 99,
+          transform: 'scaleX(-1)',
         })}
       />
     </div>
