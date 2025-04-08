@@ -1,14 +1,28 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { gestureRecognizer, detectGesture } from "./gesture-detection";
 
-const GestureContext = createContext(null);
+interface GestureResult {
+  gestures: Array<any>;
+}
 
-export function GestureProvider({ children }) {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const buttonRefs = useRef([]);
+const GestureContext = createContext<{
+  videoRef: React.RefObject<HTMLVideoElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  buttonRefs: React.RefObject<(HTMLButtonElement | HTMLAnchorElement)[]>;
+  gestureResults: GestureResult | null;
+}>({
+  videoRef: { current: null },
+  canvasRef: { current: null },
+  buttonRefs: { current: [] },
+  gestureResults: null,
+});
+
+export function GestureProvider({ children }: { children: React.ReactNode }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const buttonRefs = useRef<HTMLButtonElement[]>([]);
   const animationFrameIdRef = useRef<number | null>(null);
-  const [gestureResults, setGestureResults] = useState(null);
+  const [gestureResults, setGestureResults] = useState<GestureResult | null>(null);
 
   useEffect(() => {
     async function startVideoStream() {
@@ -55,7 +69,7 @@ export function GestureProvider({ children }) {
         const results = await gestureRecognizer.recognizeForVideo(videoRef.current, performance.now());
         if (results?.gestures.length > 0) {
           setGestureResults(results);
-          detectGesture(results, canvasRef, buttonRefs);
+          detectGesture(results, canvasRef);
         }
       } catch (error) {
         console.error("제스처 인식 오류:", error);
@@ -87,7 +101,7 @@ export function GestureProvider({ children }) {
   );
 }
 
-//제스처 컨텍스트 사용 함수
+// 제스처 컨텍스트 사용 함수
 export function useGesture() {
   return useContext(GestureContext);
 }

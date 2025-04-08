@@ -24,9 +24,9 @@ function Game() {
   // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
   //   null,
   // );
-  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>( // cosineSimilarity
-        null,
-     );
+  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>(
+    null,
+  );
   const webcam = useWebcam();
   const navigate = useNavigate();
 
@@ -47,10 +47,10 @@ function Game() {
       // const angle = calculateAngleSimilarity(answerAngles, userAngles);
       // const combined = calculateCombinedSimilarity(distance, angle);
       // setCombinedSimilarity(combined);
-      
+
       const cosine = calculateCosineSimilarity(
         answer.landmarks,
-        webcam.poseLandmarkerResult.landmarks[0]
+        webcam.poseLandmarkerResult.landmarks[0],
       );
       setCosineSimilarity(cosine); // cosineSimilarity 상태 업데이트
     }
@@ -67,7 +67,7 @@ function Game() {
   useEffect(() => {
     if (isPlaying && cosineSimilarity !== null) {
       const checkSimilarity = () => {
-        const score = Math.round(cosineSimilarity*100);
+        const score = Math.round(cosineSimilarity * 100);
         console.log('Checking similarity:', score);
         if (score >= 85) {
           console.log('Sending pass event', score);
