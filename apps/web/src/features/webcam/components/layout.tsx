@@ -6,6 +6,7 @@ import { WebcamContext } from '../context';
 import { poseLandmarker } from 'src/features/webcam/pose-landmarker';
 import { DevtoolMenu } from 'src/features/devtool/components/menu';
 import { DevtoolWebcam } from 'src/features/devtool/components/webcam';
+import { NicknameProvider } from 'src/features/nickname/context';
 
 /**
  * 전역 레이아웃
@@ -62,7 +63,9 @@ export function GlobalLayout() {
 
   return (
     <WebcamContext.Provider value={{ stream, poseLandmarkerResult }}>
-      <Outlet />
+      <NicknameProvider>
+        <Outlet />
+      </NicknameProvider>
 
       {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
       <video

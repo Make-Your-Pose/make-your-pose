@@ -15,6 +15,7 @@ import {
   calculateDistanceSimilarity,
   getPoseAngles,
 } from 'src/pose/landmarks';
+import { useNickname } from 'src/features/nickname/context';
 
 import answers from '../data/1-sports';
 import { useNavigate } from 'react-router';
@@ -25,6 +26,7 @@ function Game() {
   );
   const webcam = useWebcam();
   const navigate = useNavigate();
+  const { nickname } = useNickname();
 
   const [state, send] = useMachine(gameMachine, { inspect });
 
@@ -251,7 +253,7 @@ function Game() {
               bgColor: 'rgba(0, 0, 0, 0.1)',
             })}
           >
-            Player 1
+            {nickname}
           </div>
           <div
             className={css({
