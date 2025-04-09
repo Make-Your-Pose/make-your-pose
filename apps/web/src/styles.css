@@ -32,7 +32,7 @@ select:focus {
 .animate-background {
     position: relative;
     overflow: hidden; /* 자식 요소가 넘치지 않도록 */
-    background-color: #FFFFFF; /* 기본 배경색은 투명 */
+    background-color: #EEEEEE; /* 기본 배경색은 투명 */
 }
 
 .animate-background::after {
