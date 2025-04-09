@@ -90,7 +90,7 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
 }
 
 // 커서가 클릭 가능한 요소 위에 1초 동안 있을 경우 포커스
-function handleCursorFocus() {
+function handleCursorFocus(_x: number, _y: number) {
   const cursorElement = document.querySelector(".fake-cursor");
 
   if (!cursorElement) {
