@@ -1,148 +1,127 @@
-import { Tabs } from '@ark-ui/react';
-
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { Link } from 'react-router';
 
+const backgroundStyle = css({
+  display: "flex",
+  justifyContent: "center",
+  width: "100vw",
+});
+
+const titleStyle = css({
+  justifyContent: "center",
+  textAlign: "center",
+  width: "40%",
+  padding: "20px 0",
+  marginBottom: "32px",
+  textStyle: "3xl",
+  fontWeight: "semibold",
+  background: "linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.80) 13%, #FFF 45%, rgba(255, 255, 255, 0.80) 90%, rgba(255, 255, 255, 0.00) 100%)",
+});
+
+const categoryCard = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: '20px',
+  alignItems: 'baseline',
+  width: '49%',
+  height: '35vh',
+  bgSize: 'cover',
+  bgPosition: 'center',
+  borderRadius: '2xl',
+  padding: '32px',
+});
+
+const categoryName = css({
+  textStyle: '5xl',
+  fontWeight: 'bold',
+  mb: '4',
+});
+
+const categoryNameEng = css({
+  textStyle: '2xl',
+  fontWeight: 'bold',
+});
+
 function Lobby() {
   return (
-    <div>
-      <Tabs.Root defaultValue="1">
+    <div className={backgroundStyle}>
+      <div
+        className={css({
+          position: 'fixed',
+          width: '100vw',
+          height: '100vh',
+          left: '0',
+          top: '0',
+          bgSize: 'cover',
+          bgPosition: 'center',
+          filter: 'auto',
+          blur: '3xl',
+        })}
+        style={{
+          backgroundImage: `url(${bg1})`,
+        }}
+      />
+      <div
+        className={stack({
+          position: 'relative',
+          width: '100vw',
+          left: '0',
+          top: '0',
+          alignItems: 'center',
+          paddingInline: '0rem',
+          marginTop: '70px',
+        })}
+      >
+        <div className={titleStyle}>플레이 하고 싶은 카테고리를 선택하세요</div>
         <div
           className={css({
-            position: 'fixed',
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
-            bgSize: 'cover',
-            bgPosition: 'center',
-            filter: 'auto',
-            blur: '3xl',
-          })}
-          style={{
-            backgroundImage: `url(${bg1})`,
-          }}
-        />
-
-        <div
-          className={stack({
-            direction: 'column',
-            gap: '12',
-            position: 'relative',
-            width: '100vw',
-            height: '100vh',
-            px: '12',
-            py: '16',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: '20px',
+            width: '100%',
+            padding: '0 10%',
+            color: 'white',
           })}
         >
-          <Tabs.Content
-            value="1"
-            className={stack({
-              direction: 'column',
-              gap: '0',
-              width: '100%',
-              flex: '1',
-              bgSize: 'cover',
-              bgPosition: 'center',
-              borderRadius: '2xl',
-              padding: '12',
-              color: 'white',
-            })}
+          <Link
+            to="/game"
+            className={`${categoryCard} categoryLink`}
             style={{
-              backgroundImage: `linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
+              backgroundImage: `linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
             }}
           >
-            <div>
-              <div
-                className={css({
-                  textStyle: '6xl',
-                  fontWeight: 'bold',
-                  mb: '4',
-                })}
-              >
-                스포츠
-              </div>
-              <div
-                className={css({
-                  textWrap: 'wrap',
-                  whiteSpace: 'pre',
-                  fontSize: 'lg',
-                })}
-              >
-                {/* biome-ignore lint/style/noUnusedTemplateLiteral: <explanation> */}
-                {`세계적인 스포츠 스타들의\n시그니처 포즈를 맞춰 보세요`}
-              </div>
-            </div>
-            <Link
-              to={'/game'}
-              className={css({
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '200px',
-                height: '48px',
-                bgColor: 'white',
-                color: 'black',
-                borderRadius: 'lg',
-                marginTop: 'auto',
-              })}
-            >
-              시작하기
-            </Link>
-          </Tabs.Content>
-          <Tabs.List>
-            <Tabs.Trigger
-              value="1"
-              className={css({
-                position: 'relative',
-                width: '320px',
-                height: '180px',
-                bgSize: 'cover',
-                bgPosition: 'center',
-                borderRadius: '2xl',
-                _selected: {
-                  border: '2px solid',
-                  borderColor: 'white',
-                },
-              })}
-              style={{
-                backgroundImage: `url(${bg1})`,
-              }}
-            >
-              스포츠
-            </Tabs.Trigger>
-          </Tabs.List>
-        </div>
-      </Tabs.Root>
+            <div className={categoryName}>스포츠</div>
+            <div className={categoryNameEng}>Sports</div>
+          </Link>
 
-      {/* <ul
-        className={cx(
-          hstack(),
-          css({
-            my: '4',
-          }),
-        )}
-      >
-        {items.map((item) => (
-          <li key={item}>
-            <Link
-              to="/game"
-              className={css({
-                display: 'block',
-                px: '4',
-                py: '3',
-                bg: 'gray.100',
-                border: '1px solid',
-                borderColor: 'blue.500',
-              })}
-            >
-              {item}
-            </Link>
-          </li>
-        ))}
-      </ul> */}
+          <div
+            className={`${categoryCard} categoryLink`}
+            style={{ backgroundColor: '#828282' }}
+          >
+            <div className={categoryName}>최종 전시 공개</div>
+            <div className={categoryNameEng}></div>
+          </div>
+
+          <div
+            className={`${categoryCard} categoryLink`}
+            style={{ backgroundColor: '#828282' }}
+          >
+            <div className={categoryName}>최종 전시 공개</div>
+            <div className={categoryNameEng}></div>
+          </div>
+
+          <div
+            className={`${categoryCard} categoryLink`}
+            style={{ backgroundColor: '#828282' }}
+          >
+            <div className={categoryName}>최종 전시 공개</div>
+            <div className={categoryNameEng}></div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

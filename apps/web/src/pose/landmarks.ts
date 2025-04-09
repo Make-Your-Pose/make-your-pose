@@ -1,5 +1,39 @@
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
 
+type Landmark = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+// 벡터 정규화 함수
+function normalizeVector(landmarks: Landmark[]): Landmark[] {
+  let meanX =
+    landmarks.reduce((sum, lm) => sum + lm.x, 0) / landmarks.length;
+  let meanY =
+    landmarks.reduce((sum, lm) => sum + lm.y, 0) / landmarks.length;
+  let meanZ =
+    landmarks.reduce((sum, lm) => sum + (lm.z || 0), 0) / landmarks.length; // Z값 추가
+
+  let norm = Math.sqrt(
+    landmarks.reduce(
+      (sum, lm) =>
+        sum +
+        (lm.x - meanX) ** 2 +
+        (lm.y - meanY) ** 2 +
+        (lm.z || 0 - meanZ) ** 2,
+      0
+    )
+  );
+
+  return landmarks.map((lm) => ({
+    x: (lm.x - meanX) / norm,
+    y: (lm.y - meanY) / norm,
+    z: (lm.z || 0 - meanZ) / norm, // Z값 정규화
+  }));
+}
+
+// Landmark 배열을 나누는 함수
 function splitLandmarks(landmarks: NormalizedLandmark[]) {
   if (!landmarks) return { main: [], face: [], handsFeet: [] };
 
@@ -20,6 +54,7 @@ function splitLandmarks(landmarks: NormalizedLandmark[]) {
   return { main, face, handsFeet };
 }
 
+// 거리 유사도 계산 함수
 export function calculateDistanceSimilarity(
   landmarks1: NormalizedLandmark[],
   landmarks2: NormalizedLandmark[],
@@ -73,6 +108,7 @@ export function calculateDistanceSimilarity(
   return 1 / (1 + totalDifference / count);
 }
 
+// 각도 유사도 계산 함수
 export function calculateAngleSimilarity(
   answerAngles: Angles,
   currentAngles: Angles,
@@ -99,6 +135,7 @@ export function calculateAngleSimilarity(
   return 1 / (1 + totalDifference / count);
 }
 
+// 결합된 유사도 계산 함수
 export function calculateCombinedSimilarity(
   distanceSimilarity: number,
   angleSimilarity: number,
@@ -108,6 +145,7 @@ export function calculateCombinedSimilarity(
   return w1 * distanceSimilarity + w2 * angleSimilarity;
 }
 
+// 각도 계산 함수
 function calculateAngle(
   firstLandmark: NormalizedLandmark,
   midLandmark: NormalizedLandmark,
@@ -127,6 +165,7 @@ function calculateAngle(
   return degrees;
 }
 
+// 각도 인터페이스
 interface Angles {
   leftShoulder: number;
   rightShoulder: number;
@@ -140,6 +179,7 @@ interface Angles {
   toe: number;
 }
 
+// 포즈 각도 계산 함수
 export function getPoseAngles(landmarks: NormalizedLandmark[]) {
   const angles: Angles = {
     leftShoulder: calculateAngle(landmarks[11], landmarks[13], landmarks[15]),
@@ -154,11 +194,60 @@ export function getPoseAngles(landmarks: NormalizedLandmark[]) {
     toe: calculateAngle(landmarks[27], landmarks[31], landmarks[32]), // 발끝 각도
   };
 
-  // const validAngles = {};
-  // for (const key in angles) {
-  //   if (angles[key] !== null) {
-  //     validAngles[key] = angles[key];
-  //   }
-  // }
   return angles;
+}
+
+// 코사인 유사도 계산 함수
+export function calculateCosineSimilarity(
+  landmarks1: NormalizedLandmark[],
+  landmarks2: NormalizedLandmark[],
+) {
+  const {
+    main: main1,
+    face: face1,
+    handsFeet: handsFeet1,
+  } = splitLandmarks(landmarks1);
+  const {
+    main: main2,
+    face: face2,
+    handsFeet: handsFeet2,
+  } = splitLandmarks(landmarks2);
+
+  let allLandmarks1 = [...main1, ...face1, ...handsFeet1];
+  let allLandmarks2 = [...main2, ...face2, ...handsFeet2];
+
+  let normLandmarks1 = normalizeVector(allLandmarks1);
+  let normLandmarks2 = normalizeVector(allLandmarks2);
+
+  let dotProduct = 0;
+  let magnitude1 = 0;
+  let magnitude2 = 0;
+
+  for (let i = 0; i < normLandmarks1.length; i++) {
+    let weight = 1.0;
+    if (i >= main1.length && i < main1.length + face1.length)
+      weight = 0.2; // 얼굴 중요도 낮춤
+    if (i >= main1.length + face1.length) weight = 1.0; // 손, 발 중요도 증가
+
+    dotProduct +=
+      (normLandmarks1[i].x * normLandmarks2[i].x +
+        normLandmarks1[i].y * normLandmarks2[i].y +
+        normLandmarks1[i].z * normLandmarks2[i].z) *
+      weight;
+
+    magnitude1 +=
+      (normLandmarks1[i].x ** 2 +
+        normLandmarks1[i].y ** 2 +
+        normLandmarks1[i].z ** 2) *
+      weight;
+    magnitude2 +=
+      (normLandmarks2[i].x ** 2 +
+        normLandmarks2[i].y ** 2 +
+        normLandmarks2[i].z ** 2) *
+      weight;
+  }
+
+  let cosineSimilarity =
+    dotProduct / (Math.sqrt(magnitude1) * Math.sqrt(magnitude2));
+  return Math.max(0, Math.min(1, cosineSimilarity));
 }
