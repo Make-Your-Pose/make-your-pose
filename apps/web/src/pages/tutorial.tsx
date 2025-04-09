@@ -7,6 +7,7 @@ import tutorial2 from "../images/description_image_2.png"
 import tutorial3 from "../images/description_image_3.png"
 import rightChevron from "../images/right-arrow-chevron.png";
 import bg1 from '../images/bg-1.png';
+import home from '../images/home.png'
 
 const backgroundStyle = css({
   display: "flex",
@@ -123,6 +124,21 @@ function Tutorial() {
 
   return (
     <>
+      <Link
+        to="/"
+        style={{
+          position: "fixed",
+          bottom: "70px",
+          right: "50px",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          backgroundColor: "#ffffff",
+          boxShadow: "md",
+          zIndex: 10,
+        }}
+        className="home-button">
+        <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }}/>
+      </Link>
       <div className={backgroundStyle}>
         <div
           className={css({

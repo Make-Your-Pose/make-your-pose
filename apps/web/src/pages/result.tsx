@@ -2,6 +2,8 @@ import { css } from '~styled-system/css';
 import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
+import home from '../images/home.png'
 
 // Type for the data items
 type RankingItem = {
@@ -9,6 +11,21 @@ type RankingItem = {
   Username: string;
   Score: number;
 };
+
+const button = css({
+  display: "flex",
+  width: "100%",
+  height: "90px",
+  padding: "16px 24px",
+  gap: "12px",
+  justifyContent: "center",
+  alignItems: "center",
+  borderRadius: "12px",
+  backgroundColor: "#eeeeee",
+  marginTop: "30px",
+  fontSize: "4xl",
+  fontWeight: "semibold",
+});
 
 function Result() {
   const [data, setData] = useState<RankingItem[]>([]);
@@ -125,6 +142,10 @@ function Result() {
               ))
             )}
           </div>
+          <Link className={button} to="/">
+            <img src={home} style={{ width: '40px' }}/>
+            홈으로
+          </Link>
         </div>
       </div>
     </div>

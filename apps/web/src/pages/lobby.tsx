@@ -2,6 +2,7 @@ import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { Link } from 'react-router';
+import home from '../images/home.png'
 
 const backgroundStyle = css({
   display: "flex",
@@ -26,7 +27,7 @@ const categoryCard = css({
   gap: '20px',
   alignItems: 'baseline',
   width: '49%',
-  height: '35vh',
+  height: '36.6vh',
   bgSize: 'cover',
   bgPosition: 'center',
   borderRadius: '2xl',
@@ -46,83 +47,100 @@ const categoryNameEng = css({
 
 function Lobby() {
   return (
-    <div className={backgroundStyle}>
-      <div
-        className={css({
-          position: 'fixed',
-          width: '100vw',
-          height: '100vh',
-          left: '0',
-          top: '0',
-          bgSize: 'cover',
-          bgPosition: 'center',
-          filter: 'auto',
-          blur: '3xl',
-        })}
-        style={{
-          backgroundImage: `url(${bg1})`,
-        }}
-      />
-      <div
-        className={stack({
-          position: 'relative',
-          width: '100vw',
-          left: '0',
-          top: '0',
-          alignItems: 'center',
-          paddingInline: '0rem',
-          marginTop: '70px',
-        })}
-      >
-        <div className={titleStyle}>플레이 하고 싶은 카테고리를 선택하세요</div>
+    <>
+      <Link
+          to="/"
+          style={{
+            position: "fixed",
+            bottom: "70px",
+            right: "50px",
+            padding: "16px 20px",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            boxShadow: "md",
+            zIndex: 10,
+          }}
+          className="home-button">
+          <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }}/>
+      </Link>
+      <div className={backgroundStyle}>
         <div
           className={css({
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: '20px',
-            width: '100%',
-            padding: '0 10%',
-            color: 'white',
+            position: 'fixed',
+            width: '100vw',
+            height: '100vh',
+            left: '0',
+            top: '0',
+            bgSize: 'cover',
+            bgPosition: 'center',
+            filter: 'auto',
+            blur: '3xl',
+          })}
+          style={{
+            backgroundImage: `url(${bg1})`,
+          }}
+        />
+        <div
+          className={stack({
+            position: 'relative',
+            width: '100vw',
+            left: '0',
+            top: '0',
+            alignItems: 'center',
+            paddingInline: '0rem',
+            marginTop: '70px',
           })}
         >
-          <Link
-            to="/game"
-            className={`${categoryCard} categoryLink`}
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
-            }}
-          >
-            <div className={categoryName}>스포츠</div>
-            <div className={categoryNameEng}>Sports</div>
-          </Link>
-
+          <div className={titleStyle}>플레이 하고 싶은 카테고리를 선택하세요</div>
           <div
-            className={`${categoryCard} categoryLink`}
-            style={{ backgroundColor: '#828282' }}
+            className={css({
+              display: 'flex',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: '20px',
+              width: '93%',
+              padding: '0 10%',
+              color: 'white',
+            })}
           >
-            <div className={categoryName}>최종 전시 공개</div>
-            <div className={categoryNameEng}></div>
-          </div>
+            <Link
+              to="/game"
+              className={`${categoryCard} categoryLink`}
+              style={{
+                backgroundImage: `linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
+              }}
+            >
+              <div className={categoryName}>스포츠</div>
+              <div className={categoryNameEng}>Sports</div>
+            </Link>
 
-          <div
-            className={`${categoryCard} categoryLink`}
-            style={{ backgroundColor: '#828282' }}
-          >
-            <div className={categoryName}>최종 전시 공개</div>
-            <div className={categoryNameEng}></div>
-          </div>
+            <div
+              className={`${categoryCard} categoryLink`}
+              style={{ backgroundColor: '#828282' }}
+            >
+              <div className={categoryName}>최종 전시 공개</div>
+              <div className={categoryNameEng}></div>
+            </div>
 
-          <div
-            className={`${categoryCard} categoryLink`}
-            style={{ backgroundColor: '#828282' }}
-          >
-            <div className={categoryName}>최종 전시 공개</div>
-            <div className={categoryNameEng}></div>
+            <div
+              className={`${categoryCard} categoryLink`}
+              style={{ backgroundColor: '#828282' }}
+            >
+              <div className={categoryName}>최종 전시 공개</div>
+              <div className={categoryNameEng}></div>
+            </div>
+
+            <div
+              className={`${categoryCard} categoryLink`}
+              style={{ backgroundColor: '#828282' }}
+            >
+              <div className={categoryName}>최종 전시 공개</div>
+              <div className={categoryNameEng}></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+   </>
   );
 }
 

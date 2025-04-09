@@ -19,7 +19,8 @@ import {
 import { useNickname } from 'src/features/nickname/context';
 
 import answers from '../data/1-sports';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import home from '../images/home.png'
 
 function Game() {
   // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
@@ -129,6 +130,21 @@ function Game() {
 
   return (
     <div>
+      <Link
+        to="/"
+        style={{
+          position: "fixed",
+          bottom: "70px",
+          right: "50px",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          backgroundColor: "#ffffff",
+          boxShadow: "md",
+          zIndex: 10,
+        }}
+        className="home-button">
+        <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }}/>
+      </Link>
       <div
         className={css({
           position: 'fixed',

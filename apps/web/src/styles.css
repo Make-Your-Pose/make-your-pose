@@ -69,3 +69,7 @@ canvas {
     z-index: 1000;
     pointer-events: none;  /* 커서가 다른 요소의 클릭을 방해하지 않도록 설정 */
 }
+
+.home-button{
+    position: fixed !important;
+}
