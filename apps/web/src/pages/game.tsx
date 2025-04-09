@@ -21,6 +21,19 @@ import { useNickname } from 'src/features/nickname/context';
 import answers from '../data/1-sports';
 import { useNavigate } from 'react-router';
 
+// Fisher-Yates shuffle algorithm
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+// Shuffle answers once when the module loads
+const shuffledAnswers = shuffleArray(answers);
+
 function Game() {
   // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
   //   null,
@@ -32,7 +45,7 @@ function Game() {
 
   const [state, send] = useMachine(gameMachine, { inspect });
 
-  const answer = answers[state.context.round];
+  const answer = shuffledAnswers[state.context.round];
 
   useEffect(() => {
     if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
