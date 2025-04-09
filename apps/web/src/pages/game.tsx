@@ -25,9 +25,7 @@ function Game() {
   // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
   //   null,
   // );
-  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>(
-    null,
-  );
+  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>(null);
   const webcam = useWebcam();
   const navigate = useNavigate();
   const { nickname } = useNickname();
@@ -203,6 +201,7 @@ function Game() {
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
+                transform: 'scaleX(-1)', // Flip horizontally (mirror effect)
               })}
             />
 
