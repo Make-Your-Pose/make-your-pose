@@ -48,6 +48,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
 
 let focusTimer: ReturnType<typeof setTimeout> | null = null;
 let clickTimer: ReturnType<typeof setTimeout> | null = null;
+let currentTarget: HTMLElement | null = null;
 
 export function detectGesture(gestureResults: GestureResults | null, canvasRef: React.RefObject<HTMLCanvasElement>) {
   if (!gestureResults || !canvasRef?.current) return;
@@ -59,7 +60,7 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
 
   // 캔버스 초기화
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width = window.innerWidth;
+  canvas.width = window.innerWidth; 
   canvas.height = window.innerHeight;
 
   // 캔버스 거울 모드
@@ -96,77 +97,71 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
 // 커서가 클릭 가능한 요소 위에 1초 동안 있을 경우 포커스
 function handleCursorFocus(_x: number, _y: number) {
   const cursorElement = document.querySelector(".fake-cursor");
+  if (!cursorElement) createFakeCursor();
 
-  if (!cursorElement) {
-    createFakeCursor();
+  const cursorRect = cursorElement?.getBoundingClientRect();
+  if (!cursorRect) return;
+
+  const elementsAtCursor = document.elementsFromPoint(
+    cursorRect.left + cursorRect.width / 2,
+    cursorRect.top + cursorRect.height / 2
+  );
+
+  const clickableElement = elementsAtCursor.find(el =>
+    el instanceof HTMLElement &&
+    (el.tagName === "BUTTON" || el.tagName === "A")
+  ) as HTMLElement | undefined;
+
+  if ((clickableElement !== currentTarget || !clickableElement) && currentTarget) {
+    clearTimeout(focusTimer!);
+    clearTimeout(clickTimer!);
+
+    cancelPlayingAnimation(currentTarget);
+    currentTarget = null;
   }
+  
 
-  const cursorRect = cursorElement ? cursorElement.getBoundingClientRect() : null;
-
-  if (cursorRect) {
-    // 커서 위치 아래에 있는 요소들을 찾아 클릭 가능한 요소를 식별
-    const elementsAtCursor = document.elementsFromPoint(
-      cursorRect.left + cursorRect.width / 2,
-      cursorRect.top + cursorRect.height / 2
-    );
-
-    // 클릭 가능한 요소 필터링
-    const clickableElement = elementsAtCursor.find(element => {
-      return (
-        element.tagName === "BUTTON" ||
-        element.tagName === "A"
-      );
-    });
-
-    if (clickableElement instanceof HTMLElement) {
-      // 포커스를 설정하는 타이머
-      focusTimer = setTimeout(() => {
-        clickableElement.focus();
-        // console.log("포커스 적용됨");
-
-        clickableElement.classList.add("animate-background", "playing");
-        clickableElement.classList.remove("stopped"); // 중단 상태 제거
-
-        // 포커스가 적용된 후 4초 대기 후 클릭
-        clickTimer = setTimeout(() => {
-          // requestAnimationFrame을 사용하여 포커스가 확실히 적용된 후 클릭
-          requestAnimationFrame(() => {
-            const activeElement = document.activeElement;
-
-            // 현재 포커스된 요소가 clickableElement와 일치하는지 확인
-            if (activeElement === clickableElement) {
-              // fake-cursor 위치 계산
-              const cursorElement = document.querySelector(".fake-cursor");
-              if (cursorElement instanceof HTMLElement) {
-                const cursorRect = cursorElement.getBoundingClientRect();
-                const clickableRect = clickableElement.getBoundingClientRect();
-
-                // fake-cursor가 클릭 가능한 영역 내에 있을 때만 클릭
-                if (
-                  cursorRect.left >= clickableRect.left &&
-                  cursorRect.top >= clickableRect.top &&
-                  cursorRect.right <= clickableRect.right &&
-                  cursorRect.bottom <= clickableRect.bottom
-                ) {
-                  clickableElement.click();  // 클릭 동작
-                  // console.log("현재 포커스된 요소 클릭됨");
-                } else {
-                  // console.log("fake-cursor가 클릭 가능한 영역을 벗어남");
-                  clearTimeout(clickTimer!); // clickTimer가 null일 수 있으므로 안전하게 처리
-                  // fake-cursor가 영역을 벗어나면 배경이 내려가는 애니메이션 적용
-                  clickableElement.classList.add("stopped");
-                  clickableElement.classList.remove("playing");
-                }
-              }
-            }
-          });
-        }, 4000); // 포커스 후 4초 대기 후 클릭
-
-      }, 1000); // 1초 후 포커스 설정
-    } else {
-      // 클릭 가능한 요소가 없으면 타이머 초기화
+  if (clickableElement instanceof HTMLElement) {
+    if (clickableElement !== currentTarget) {
       clearTimeout(focusTimer!);
       clearTimeout(clickTimer!);
+      currentTarget = clickableElement;
+
+      focusTimer = setTimeout(() => {
+        clickableElement.focus();
+        clickableElement.classList.add("animate-background");
+
+        requestAnimationFrame(() => {
+          clickableElement.classList.add("playing");
+        });
+        
+        clickableElement.classList.remove("stopped");
+
+        clickTimer = setTimeout(() => {
+          requestAnimationFrame(() => {
+            const activeElement = document.activeElement;
+            const cursorElement = document.querySelector(".fake-cursor");
+            if (!cursorElement) return;
+
+            const cursorRect = cursorElement.getBoundingClientRect();
+            const clickableRect = clickableElement.getBoundingClientRect();
+
+            const isInBounds =
+              cursorRect.left >= clickableRect.left &&
+              cursorRect.top >= clickableRect.top &&
+              cursorRect.right <= clickableRect.right &&
+              cursorRect.bottom <= clickableRect.bottom;
+
+            if (activeElement === clickableElement && isInBounds) {
+              clickableElement.click();
+              currentTarget = null;
+            } else {
+              cancelPlayingAnimation(clickableElement);
+              currentTarget = null;
+            }
+          });
+        }, 3000);
+      }, 1000);
     }
   }
 }
@@ -194,4 +189,10 @@ function removeFakeCursor() {
   if (cursorElement) {
     cursorElement.remove();
   }
+}
+
+function cancelPlayingAnimation(el: HTMLElement) {
+  el.classList.remove("playing");
+  void el.offsetWidth; // 강제 리플로우로 브라우저 재인식
+  el.classList.add("stopped");
 }

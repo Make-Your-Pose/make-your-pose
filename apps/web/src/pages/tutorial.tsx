@@ -115,7 +115,7 @@ function Tutorial() {
   useEffect(() => {
     const interval = setInterval(() => {
       setPageIndex((prevIndex) => (prevIndex + 1) % pages.length);
-    }, 5000);
+    }, 6000);
     
     return () => clearInterval(interval);
   }, []);
