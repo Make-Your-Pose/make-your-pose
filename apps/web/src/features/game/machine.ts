@@ -29,6 +29,9 @@ export const gameMachine = setup({
         return nextHint;
       },
     }),
+    revealAllHints: assign({
+      hint: () => Array(9).fill(true),
+    }),
     nextRound: assign({
       hint: () => [
         false,
@@ -45,7 +48,8 @@ export const gameMachine = setup({
     }),
   },
   guards: {
-    isRoundFinished: ({ context }) => context.hint.every((hint) => hint),
+    isRoundFinished: ({ context }) =>
+      context.hint.filter((hint) => !hint).length <= 1,
     isGameFinished: ({ context }) => context.round >= context.maxRound,
     canProceedNextRound: ({ context }) => context.round + 1 < context.maxRound,
   },
@@ -96,6 +100,7 @@ export const gameMachine = setup({
       },
     },
     answer: {
+      entry: ['revealAllHints'],
       after: {
         nextRoundDelay: [
           {
