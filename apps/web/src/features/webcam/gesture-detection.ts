@@ -49,6 +49,7 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
 let focusTimer: ReturnType<typeof setTimeout> | null = null;
 let clickTimer: ReturnType<typeof setTimeout> | null = null;
 let currentTarget: HTMLElement | null = null;
+let isCanvasInitialized = false;
 
 export function detectGesture(gestureResults: GestureResults | null, canvasRef: React.RefObject<HTMLCanvasElement>) {
   if (!gestureResults || !canvasRef?.current) return;
@@ -58,10 +59,21 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
 
   if (!ctx) return;
 
-  // 캔버스 초기화
+  // 캔버스 초기화는 최초 1회만
+  if (!isCanvasInitialized) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    isCanvasInitialized = true;
+
+    // 혹시 나중에 윈도우 사이즈 바뀔 때 반응하고 싶으면 여기 추가
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  }
+
+  // 매 프레임 렌더링용 clearRect만 실행
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width = window.innerWidth; 
-  canvas.height = window.innerHeight;
 
   // 캔버스 거울 모드
   ctx.save();
