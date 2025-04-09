@@ -31,7 +31,7 @@ const button = css({
   padding: "20px 24px",
   justifyContent: "center",
   borderRadius: "12px",
-  backgroundColor: "#eeeeee",
+  backgroundColor: "#ffffff",
   marginTop: "30px",
   fontSize: "3xl",
   fontWeight: "semibold",

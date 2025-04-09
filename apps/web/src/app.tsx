@@ -12,19 +12,17 @@ import './styles.css'
 function App() {
   return (
     <DevtoolMachineContext.Provider>
-       <GestureProvider>
         <BrowserRouter>
           <Routes>
             <Route element={<GlobalLayout />}>
-              <Route index element={<Home />} />
-              <Route path="tutorial" element={<Tutorial/>}/>
-              <Route path="/lobby" element={<Lobby />} />
+              <Route index element={<GestureProvider><Home /></GestureProvider>} />
+              <Route path="tutorial" element={<GestureProvider><Tutorial /></GestureProvider>}/>
+              <Route path="/lobby" element={<GestureProvider><Lobby /></GestureProvider>} />
               <Route path="/game" element={<Game />} />
-              <Route path="/result" element={<Result />} />
+              <Route path="/result" element={<GestureProvider><Result /></GestureProvider>} />
             </Route>
           </Routes>
         </BrowserRouter>
-      </GestureProvider>  
     </DevtoolMachineContext.Provider>
   );
 }

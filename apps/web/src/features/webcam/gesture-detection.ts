@@ -87,6 +87,10 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
       }
     });
   });
+   // Game 페이지일 때 커서 제거
+   if (window.location.pathname === '/game') {
+    removeFakeCursor();  // Game 페이지로 이동시 커서 제거
+  }
 }
 
 // 커서가 클릭 가능한 요소 위에 1초 동안 있을 경우 포커스
@@ -181,5 +185,13 @@ function moveCursorTo(x: number, y: number) {
   if (cursorElement instanceof HTMLElement) {
     cursorElement.style.left = `${x - 25}px`;
     cursorElement.style.top = `${y - 25}px`;
+  }
+}
+
+// 가짜 커서 제거 함수
+function removeFakeCursor() {
+  const cursorElement = document.querySelector(".fake-cursor");
+  if (cursorElement) {
+    cursorElement.remove();
   }
 }
