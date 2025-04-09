@@ -110,9 +110,37 @@ function Game() {
 
   useEffect(() => {
     if (isGameOver) {
-      navigate('/result');
+      // Post the score to the leaderboard API
+      const postScore = async () => {
+        try {
+          const response = await fetch('/api/rankings/sports/scores', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              score: state.context.score,
+              username: nickname,
+              category: 'sports',
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to record score');
+          }
+
+          console.log('Score recorded successfully');
+        } catch (error) {
+          console.error('Error recording score:', error);
+        }
+
+        // Navigate to result page after recording score
+        navigate('/result');
+      };
+
+      postScore();
     }
-  }, [isGameOver, navigate]);
+  }, [isGameOver, navigate, state.context.score, nickname]);
 
   useEffect(() => {
     if (hintTime === null) return;
