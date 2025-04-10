@@ -9,6 +9,9 @@ import { DevtoolWebcam } from 'src/features/devtool/components/webcam';
 import { NicknameProvider } from 'src/features/nickname/context';
 import { logger } from 'src/utils/logger';
 
+// Check if environment is production
+const isProduction = process.env.NODE_ENV === 'production';
+
 /**
  * 전역 레이아웃
  * 웹캠과 개발자 도구를 관리
@@ -80,8 +83,13 @@ export function GlobalLayout() {
         onLoadedData={handleLoadedData}
       />
 
-      <DevtoolMenu />
-      <DevtoolWebcam />
+      {/* Only render developer tools in non-production environments */}
+      {!isProduction && (
+        <>
+          <DevtoolMenu />
+          <DevtoolWebcam />
+        </>
+      )}
     </WebcamContext.Provider>
   );
 }
