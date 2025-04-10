@@ -55,7 +55,6 @@ export const gameMachine = setup({
   },
   delays: {
     playDelay: 1000,
-    hintTimeout: 3000,
     nextRoundDelay: 3000,
   },
 }).createMachine({

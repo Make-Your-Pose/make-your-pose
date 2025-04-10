@@ -20,7 +20,7 @@ import { useNickname } from 'src/features/nickname/context';
 
 import answers from '../data/1-sports';
 import { Link, useNavigate } from 'react-router';
-import home from '../images/home.png'
+import home from '../images/home.png';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -71,7 +71,7 @@ function Game() {
   }, [webcam.poseLandmarkerResult, answer]);
 
   const [hintTime, setHintTime] = useState<number | null>(null);
-  const hintDuration = 10000;
+  const hintDuration = 3000;
 
   const isPlaying = state.matches('playing');
   const isGameOver = state.matches('gameOver');
@@ -172,17 +172,18 @@ function Game() {
       <Link
         to="/"
         style={{
-          position: "fixed",
-          bottom: "70px",
-          right: "50px",
-          padding: "16px 20px",
-          borderRadius: "12px",
-          backgroundColor: "#ffffff",
-          boxShadow: "md",
+          position: 'fixed',
+          bottom: '70px',
+          right: '50px',
+          padding: '16px 20px',
+          borderRadius: '12px',
+          backgroundColor: '#ffffff',
+          boxShadow: 'md',
           zIndex: 10,
         }}
-        className="home-button">
-        <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }}/>
+        className="home-button"
+      >
+        <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }} />
       </Link>
       <div
         className={css({
