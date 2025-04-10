@@ -38,7 +38,7 @@ export async function onRequestPost(context) {
     // 데이터 삽입 쿼리 실행
     const stmt = await db
       .prepare(
-        'INSERT INTO scores (id, score, category, username) VALUES (?, ?, ?, ?)',
+        'INSERT INTO Leaderboards (id, score, category, username) VALUES (?, ?, ?, ?)',
       )
       .bind(id, score, category, username);
 
