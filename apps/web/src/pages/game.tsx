@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { css } from '~styled-system/css';
 import { hstack, vstack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
@@ -39,7 +39,9 @@ function Game() {
   // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
   //   null,
   // );
-  const [cosineSimilarity, setCosineSimilarity] = useState<number | null>(null);
+  const cosineSimilarityRef = useRef<number | null>(null);
+  const lastCalculationTimeRef = useRef<number>(0);
+  const highScoreStartTimeRef = useRef<number | null>(null); // Track when score first reached 85+
   const [progressRate, setProgressRate] = useState(0);
   const webcam = useWebcam();
   const navigate = useNavigate();
@@ -49,58 +51,53 @@ function Game() {
 
   const answer = shuffledAnswers[state.context.round];
 
-  useEffect(() => {
-    if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
-      // const distance = calculateDistanceSimilarity(
-      //   answer.landmarks,
-      //   webcam.poseLandmarkerResult.landmarks[0],
-      // );
-      // const answerAngles = getPoseAngles(answer.landmarks);
-      // const userAngles = getPoseAngles(
-      //   webcam.poseLandmarkerResult.landmarks[0],
-      // );
-      // const angle = calculateAngleSimilarity(answerAngles, userAngles);
-      // const combined = calculateCombinedSimilarity(distance, angle);
-      // setCombinedSimilarity(combined);
-
-      const cosine = calculateCosineSimilarity(
-        answer.landmarks,
-        webcam.poseLandmarkerResult.landmarks[0],
-      );
-      setCosineSimilarity(cosine); // cosineSimilarity 상태 업데이트
-    }
-  }, [webcam.poseLandmarkerResult, answer]);
-
   const [hintTime, setHintTime] = useState<number | null>(null);
   const hintDuration = 3000;
 
   const isPlaying = state.matches('playing');
   const isGameOver = state.matches('gameOver');
 
-  // combinedSimularity 전부 cosineSimilarity로 대체
-  // Add effect to check similarity score and send pass event when high enough
   useEffect(() => {
-    if (isPlaying && cosineSimilarity !== null) {
-      const checkSimilarity = () => {
-        const score = Math.round(cosineSimilarity * 100);
-        console.log('Checking similarity:', score);
-        if (score >= 85) {
-          console.log('Sending pass event', score);
-          send({ type: 'pass', score });
+    if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
+      const currentTime = Date.now();
+      // Only calculate if 100ms has passed since the last calculation
+      if (currentTime - lastCalculationTimeRef.current >= 100) {
+        const cosine = calculateCosineSimilarity(
+          answer.landmarks,
+          webcam.poseLandmarkerResult.landmarks[0],
+        );
+        cosineSimilarityRef.current = cosine; // Update ref instead of state
+        lastCalculationTimeRef.current = currentTime; // Update the timestamp
+
+        // Check similarity immediately after calculation
+        if (isPlaying) {
+          const score = Math.round(cosine * 100);
+          console.log('Checking similarity:', score);
+
+          if (score >= 85) {
+            // If this is the first time reaching 85+, record the start time
+            if (highScoreStartTimeRef.current === null) {
+              highScoreStartTimeRef.current = currentTime;
+            }
+
+            // Check if we've maintained the score for at least 500ms
+            const highScoreDuration =
+              currentTime - (highScoreStartTimeRef.current || currentTime);
+            if (highScoreDuration >= 500) {
+              console.log(
+                'Sending pass event after maintaining score for 500ms:',
+                score,
+              );
+              send({ type: 'pass', score });
+            }
+          } else {
+            // Reset the tracking if the score drops below 85
+            highScoreStartTimeRef.current = null;
+          }
         }
-      };
-
-      // Check immediately
-      checkSimilarity();
-
-      // Set up interval to check periodically
-      const intervalId = setInterval(checkSimilarity, 500);
-
-      return () => {
-        clearInterval(intervalId);
-      };
+      }
     }
-  }, [isPlaying, cosineSimilarity, send]);
+  }, [webcam.poseLandmarkerResult, answer, isPlaying, send]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -174,7 +171,9 @@ function Game() {
 
   // Calculate similarity percentage value
   const similarityPercentage =
-    cosineSimilarity !== null ? Math.round(cosineSimilarity * 100) : null;
+    cosineSimilarityRef.current !== null
+      ? Math.round(cosineSimilarityRef.current * 100)
+      : null;
 
   return (
     <div>
