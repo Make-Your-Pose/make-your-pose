@@ -1,62 +1,16 @@
-import { useEffect, useState, useRef } from 'react';
 import { css } from '~styled-system/css';
 
 // Circular progress bar component
 export const CircularProgressBar = ({
-  hintTime,
-  hintDuration,
-  onFinish,
+  rate,
   similarity,
 }: {
-  hintTime: number;
-  hintDuration: number; // in milliseconds
-  onFinish?: () => void;
+  rate: number; // 0-1
   similarity?: number | null;
 }) => {
   const radius = 145;
   const circumference = 2 * Math.PI * radius;
-  const [remainingTime, setRemainingTime] = useState(hintDuration / 1000); // Convert ms to seconds
-  const strokeDashoffset =
-    circumference - (remainingTime / (hintDuration / 1000)) * circumference;
-
-  // Add a ref for animation frame ID
-  const animationFrameId = useRef<number | null>(null);
-
-  // Reset remainingTime when hintTime changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    setRemainingTime(hintDuration / 1000);
-  }, [hintTime, hintDuration]);
-
-  useEffect(() => {
-    // Animation function using requestAnimationFrame
-    const animate = () => {
-      const currentTime = Date.now();
-      const elapsedTime = (currentTime - hintTime) / 1000; // Convert to seconds
-      const remaining = Math.max(0, hintDuration / 1000 - elapsedTime);
-
-      setRemainingTime(remaining);
-
-      // If timer reached zero, call onFinish and stop animation
-      if (remaining <= 0) {
-        if (onFinish) onFinish();
-        return;
-      }
-
-      // Continue animation loop
-      animationFrameId.current = requestAnimationFrame(animate);
-    };
-
-    // Start animation
-    animationFrameId.current = requestAnimationFrame(animate);
-
-    // Clean up animation on unmount
-    return () => {
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-    };
-  }, [hintTime, hintDuration, onFinish]);
+  const strokeDashoffset = circumference - rate * circumference;
 
   return (
     <div
@@ -112,7 +66,7 @@ export const CircularProgressBar = ({
             fontSize: '100px',
           })}
         >
-          {Math.round(similarity * 100)}%
+          {similarity}%
         </div>
       )}
     </div>

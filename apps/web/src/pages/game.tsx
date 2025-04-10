@@ -40,6 +40,7 @@ function Game() {
   //   null,
   // );
   const [cosineSimilarity, setCosineSimilarity] = useState<number | null>(null);
+  const [progressRate, setProgressRate] = useState(0);
   const webcam = useWebcam();
   const navigate = useNavigate();
   const { nickname } = useNickname();
@@ -152,6 +153,10 @@ function Game() {
       const elapsedTime = Date.now() - hintTime;
       const remainingTime = Math.max(0, hintDuration - elapsedTime);
 
+      // Calculate progress rate (0-1)
+      const newRate = 1 - remainingTime / hintDuration;
+      setProgressRate(newRate);
+
       if (remainingTime <= 0) {
         setHintTime(Date.now());
         send({ type: 'next' });
@@ -166,6 +171,10 @@ function Game() {
       cancelAnimationFrame(animationFrameId);
     };
   }, [hintTime, send]);
+
+  // Calculate similarity percentage value
+  const similarityPercentage =
+    cosineSimilarity !== null ? Math.round(cosineSimilarity * 100) : null;
 
   return (
     <div>
@@ -294,10 +303,8 @@ function Game() {
           >
             {hintTime !== null ? (
               <CircularProgressBar
-                hintTime={hintTime}
-                hintDuration={hintDuration}
-                onFinish={() => send({ type: 'next' })}
-                similarity={cosineSimilarity} //combinedSimilarity를 cosineSimilarity로 대체
+                rate={progressRate}
+                similarity={similarityPercentage}
               />
             ) : null}
           </div>
