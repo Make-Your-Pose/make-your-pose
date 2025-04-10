@@ -49,7 +49,19 @@ export const gestureRecognizer = await GestureRecognizer.createFromOptions(visio
 let focusTimer: ReturnType<typeof setTimeout> | null = null;
 let clickTimer: ReturnType<typeof setTimeout> | null = null;
 let currentTarget: HTMLElement | null = null;
-let isCanvasInitialized = false;
+// 캔버스 초기화 변수
+let hasInitialized = false;
+let hasInitializedResult = false;
+
+function initCanvas(canvas: HTMLCanvasElement) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+}
 
 export function detectGesture(gestureResults: GestureResults | null, canvasRef: React.RefObject<HTMLCanvasElement>) {
   if (!gestureResults || !canvasRef?.current) return;
@@ -59,17 +71,15 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
 
   if (!ctx) return;
 
-  // 캔버스 초기화는 최초 1회만
-  if (!isCanvasInitialized) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    isCanvasInitialized = true;
+  // result 페이지에서 한 번 더 캔버스 초기화
+  if (!hasInitialized && window.location.pathname !== "/result") {
+    initCanvas(canvas);
+    hasInitialized = true;
+  }
 
-    // 혹시 나중에 윈도우 사이즈 바뀔 때 반응하고 싶으면 여기 추가
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
+  if (!hasInitializedResult && window.location.pathname === "/result") {
+    initCanvas(canvas);
+    hasInitializedResult = true;
   }
 
   // 매 프레임 렌더링용 clearRect만 실행
