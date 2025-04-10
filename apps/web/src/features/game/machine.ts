@@ -64,7 +64,7 @@ export const gameMachine = setup({
     hint: [false, false, false, false, false, false, false, false, false],
     round: 0,
     score: 0,
-    maxRound: 1,
+    maxRound: 5,
   },
   initial: 'pending',
   states: {
@@ -114,6 +114,7 @@ export const gameMachine = setup({
       },
     },
     wrong: {
+      entry: ['revealAllHints'],
       after: {
         nextRoundDelay: [
           {
