@@ -28,8 +28,6 @@ function Avatar({ poseData, worldData }: Props) {
   useEffect(() => {
     if (!scene) return;
 
-    // console.log(scene);
-
     // 본(Bone) 찾기
     const findBone = (name: string) => scene.getObjectByName(name);
     bones.current = {

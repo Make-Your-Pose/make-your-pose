@@ -21,6 +21,7 @@ import { useNickname } from 'src/features/nickname/context';
 import answers from '../data/1-sports';
 import { Link, useNavigate } from 'react-router';
 import home from '../images/home.png';
+import { logger } from 'src/utils/logger';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -72,7 +73,7 @@ function Game() {
         // Check similarity immediately after calculation
         if (isPlaying) {
           const score = Math.round(cosine * 100);
-          console.log('Checking similarity:', score);
+          logger.log('Checking similarity:', score);
 
           if (score >= 85) {
             // If this is the first time reaching 85+, record the start time
@@ -84,7 +85,7 @@ function Game() {
             const highScoreDuration =
               currentTime - (highScoreStartTimeRef.current || currentTime);
             if (highScoreDuration >= 500) {
-              console.log(
+              logger.log(
                 'Sending pass event after maintaining score for 500ms:',
                 score,
               );
@@ -128,9 +129,9 @@ function Game() {
             throw new Error('Failed to record score');
           }
 
-          console.log('Score recorded successfully');
+          logger.log('Score recorded successfully');
         } catch (error) {
-          console.error('Error recording score:', error);
+          logger.error('Error recording score:', error);
         }
 
         // Navigate to result page after recording score

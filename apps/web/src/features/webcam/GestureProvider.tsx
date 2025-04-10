@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { gestureRecognizer, detectGesture } from "./gesture-detection";
+import type React from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { gestureRecognizer, detectGesture } from './gesture-detection';
+import { logger } from 'src/utils/logger';
 
 interface GestureResult {
   gestures: Array<any>;
@@ -22,23 +24,27 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const buttonRefs = useRef<HTMLButtonElement[]>([]);
   const animationFrameIdRef = useRef<number | null>(null);
-  const [gestureResults, setGestureResults] = useState<GestureResult | null>(null);
+  const [gestureResults, setGestureResults] = useState<GestureResult | null>(
+    null,
+  );
 
   useEffect(() => {
     async function startVideoStream() {
       if (!videoRef.current) return;
 
       try {
-        console.log("전역 비디오 스트림 시작");
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        logger.log('전역 비디오 스트림 시작');
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
         videoRef.current.srcObject = stream;
 
-        videoRef.current.addEventListener("canplay", () => {
-          console.log("비디오 스트림 준비 완료!");
+        videoRef.current.addEventListener('canplay', () => {
+          logger.log('비디오 스트림 준비 완료!');
           startGestureRecognition();
         });
       } catch (error) {
-        console.error("비디오 스트림 오류:", error);
+        logger.error('비디오 스트림 오류:', error);
       }
     }
 
@@ -53,26 +59,29 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
 
   async function startGestureRecognition() {
     if (!gestureRecognizer) {
-      console.error("Gesture Recognizer 초기화되지 않음");
+      logger.error('Gesture Recognizer 초기화되지 않음');
       return;
     }
 
-    console.log("Gesture Recognizer 실행됨");
+    logger.log('Gesture Recognizer 실행됨');
 
     const detectLoop = async () => {
       if (!videoRef.current || videoRef.current.readyState < 2) {
-        console.warn("⚠️ 비디오 준비되지 않음, 대기 중...");
+        logger.error('⚠️ 비디오 준비되지 않음, 대기 중...');
         return requestAnimationFrame(detectLoop);
       }
 
       try {
-        const results = await gestureRecognizer.recognizeForVideo(videoRef.current, performance.now());
+        const results = await gestureRecognizer.recognizeForVideo(
+          videoRef.current,
+          performance.now(),
+        );
         if (results?.gestures.length > 0) {
           setGestureResults(results);
           detectGesture(results, canvasRef);
         }
       } catch (error) {
-        console.error("제스처 인식 오류:", error);
+        logger.error('제스처 인식 오류:', error);
       }
 
       animationFrameIdRef.current = requestAnimationFrame(detectLoop);
@@ -82,17 +91,19 @@ export function GestureProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <GestureContext.Provider value={{ videoRef, canvasRef, buttonRefs, gestureResults }}>
-      <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
+    <GestureContext.Provider
+      value={{ videoRef, canvasRef, buttonRefs, gestureResults }}
+    >
+      <video ref={videoRef} autoPlay playsInline style={{ display: 'none' }} />
       <canvas
         ref={canvasRef}
         style={{
-          position: "absolute",
+          position: 'absolute',
           top: 0,
           left: 0,
-          width: "100vw",
-          height: "100vh",
-          pointerEvents: "none",
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'none',
           zIndex: 9999,
         }}
       />
