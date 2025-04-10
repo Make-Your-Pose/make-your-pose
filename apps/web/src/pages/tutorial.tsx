@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from "react-router"; 
 import { css } from "~styled-system/css";
 import { stack } from '~styled-system/patterns';
-import rightThumb from "../images/right-thumb.png";
-import leftThumb from "../images/left-thumb.png";
-import bothThumbs from "../images/both-thumbs.png";
-import testUser from "../images/test-user.png";
+import tutorial1 from "../images/description_image_1.png"
+import tutorial2 from "../images/description_image_2.png"
+import tutorial3 from "../images/description_image_3.png"
 import rightChevron from "../images/right-arrow-chevron.png";
 import bg1 from '../images/bg-1.png';
+import home from '../images/home.png'
 
 const backgroundStyle = css({
   display: "flex",
@@ -15,7 +15,7 @@ const backgroundStyle = css({
   alignItems: "center",
   width: "100%",
   height: "100vh",
-  padding: "40px 0",
+  padding: "70px 0",
   textAlign: "center",
   backgroundColor: "gray",
 });
@@ -36,8 +36,8 @@ const containerStyle = css({
   flexDirection: "row",
   alignItems: "stretch",
   gap: "48px",
-  width: "80vw",
-  height: "80%",
+  width: "70vw",
+  height: "75vh",
 });
 
 const boxStyle = css({
@@ -47,7 +47,7 @@ const boxStyle = css({
   justifyContent: "space-between",
   flex: 1,
   height: "100%",
-  padding: "24px",
+  padding: "40px",
   backgroundColor: "white",
   borderRadius: "20px",
   boxShadow: "lg",
@@ -55,7 +55,7 @@ const boxStyle = css({
 
 const textStyle = css({
   textAlign: "center",
-  fontSize: "3xl",
+  fontSize: "4xl",
   fontWeight: "semibold",
 });
 
@@ -68,41 +68,42 @@ const buttonsBoxStyle = css({
 const button = css({
   display: "flex",
   width: "100%",
+  height: "100px",
   padding: "16px 24px",
   justifyContent: "space-between",
   alignItems: "center",
   borderRadius: "12px",
   backgroundColor: "#eeeeee",
   marginTop: "30px",
-  fontSize: "2xl",
+  fontSize: "3xl",
   fontWeight: "semibold",
 });
 
 const pages = [
   {
-    image: rightThumb,
+    image: tutorial1,
     description: (
       <>
-        <span style={{ color: "#FF6600" }}>오른손</span>을 들어 ‘따봉’ 포즈를 하면<br />
-        <span style={{ color: "#FF6600" }}>다음</span>으로 포커스가 이동합니다.
+        <span>Make Your Pose는 몸을 움직여</span><br />
+        <span style={{ color: "#FF6600" }}>정답 포즈를 추리</span><span>하는 웹 게임입니다</span>
       </>
     ),
   },
   {
-    image: leftThumb,
+    image: tutorial2,
     description: (
       <>
-        <span style={{ color: "#FF6600" }}>왼손</span>을 들어 ‘따봉’ 포즈를 하면<br />
-        <span style={{ color: "#FF6600" }}>이전</span>으로 포커스가 이동합니다.
+        <span>시간이 흐르면 </span><span style={{ color: "#FF6600" }}>정답 포즈 조각</span><span>이 하나씩 공개됩니다.</span><br />
+        <span style={{ color: "#FF6600" }}>유사도를 보고</span><span> 정답 포즈를 추리하세요!</span>
       </>
     ),
   },
   {
-    image: bothThumbs,
+    image: tutorial3,
     description: (
       <>
-        <span style={{ color: "#FF6600" }}>양손</span>을 들어 ‘따봉’ 포즈를 하면<br />
-        포커싱 된 요소가 <span style={{ color: "#FF6600" }}>클릭</span>됩니다.
+        <span>정답을 </span><span style={{ color: "#FF6600" }}>빨리 맞출수록 더 높은 점수</span><span>를 받습니다.</span><br />
+        <span>그럼 게임을 시작해볼까요?</span>
       </>
     ),
   },
@@ -114,7 +115,7 @@ function Tutorial() {
   useEffect(() => {
     const interval = setInterval(() => {
       setPageIndex((prevIndex) => (prevIndex + 1) % pages.length);
-    }, 3000);
+    }, 6000);
     
     return () => clearInterval(interval);
   }, []);
@@ -123,6 +124,21 @@ function Tutorial() {
 
   return (
     <>
+      <Link
+        to="/"
+        style={{
+          position: "fixed",
+          bottom: "70px",
+          right: "50px",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          backgroundColor: "#ffffff",
+          boxShadow: "md",
+          zIndex: 10,
+        }}
+        className="home-button">
+        <img src={home} alt="homeButtom" style={{ marginBottom: '8px' }}/>
+      </Link>
       <div className={backgroundStyle}>
         <div
           className={css({
@@ -144,29 +160,30 @@ function Tutorial() {
           className={stack({
             position: 'relative',
             width: '100vw',
+            height: '100vh',
             left: '0',
             top: '0',
             alignItems: 'center',
             paddingInline: '0rem',
           })}
         >
-          <div className={titleStyle}>게임 조작 방법 안내</div>
+          <div className={titleStyle}>게임 설명</div>
           <div className={containerStyle}>
             <div className={boxStyle}>
-              <div style={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center", justifyContent: "center", gap: "32px" }}>
+              <div style={{ display: "flex", flexDirection: "column", height: "100%", alignItems: "center", justifyContent: "center", gap: "5%" }}>
                 {/* image */}
-                <img src={currentPage.image} alt="currentSlide" style={{ width: 'auto', height: '260px', objectFit: 'contain' }} />
+                <img src={currentPage.image} alt="currentSlide" style={{ width: 'auto', height: '60%', objectFit: 'contain' }} />
                 {/* description */}
                 <div className={textStyle}>{currentPage.description}</div>
                 {/* pagination */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
                   {pages.map((_, index) => (
                     <div
                       key={index}
                       onClick={() => setPageIndex(index)}
                       style={{
-                        width: '12px',
-                        height: '12px',
+                        width: '20px',
+                        height: '20px',
                         borderRadius: '50%',
                         backgroundColor: pageIndex === index ? '#FF6600' : '#D9D9D9',
                       }}
@@ -176,11 +193,10 @@ function Tutorial() {
               </div>
               <div className={buttonsBoxStyle}>
                 <Link className={button} to="/lobby" style={{ justifyContent: "space-between" }}>
-                  <span style={{ width: "40px", height: "32px" }}></span>다음<img src={rightChevron} />
+                  <span style={{ width: "40px", height: "40px" }}></span>다음<img src={rightChevron} />
                 </Link>
               </div>
             </div>
-            <img src={testUser} width="350px" />
           </div>
         </div>
       </div>    
