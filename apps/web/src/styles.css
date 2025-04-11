@@ -4,7 +4,7 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border: 2px solid #FF6600;
+  border: 4px solid #FF6600;
 }
 
 .animate-background {

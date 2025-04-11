@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from "react-router"; 
 import { css } from "~styled-system/css";
 import { stack } from '~styled-system/patterns';
-import tutorial1 from "../images/description_image_1.png"
-import tutorial2 from "../images/description_image_2.png"
-import tutorial3 from "../images/description_image_3.png"
-import rightChevron from "../images/right-arrow-chevron.png";
+import tutorial1 from "../images/description_image_1.svg"
+import tutorial2 from "../images/description_image_2.svg"
+import tutorial3 from "../images/description_image_3.svg"
+import rightChevron from "../images/right-arrow-chevron.svg";
 import bg1 from '../images/bg-1.png';
-import home from '../images/home.png'
+import home from '../images/home.svg'
 
 const backgroundStyle = css({
   display: "flex",
