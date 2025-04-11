@@ -3,7 +3,7 @@ import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import home from '../images/home.png'
+import home from '../images/home.svg'
 
 // Type for the data items
 type RankingItem = {

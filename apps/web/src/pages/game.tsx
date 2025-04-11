@@ -20,7 +20,7 @@ import { useNickname } from 'src/features/nickname/context';
 
 import answers from '../data/1-sports';
 import { Link, useNavigate } from 'react-router';
-import home from '../images/home.png';
+import home from '../images/home.svg';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {

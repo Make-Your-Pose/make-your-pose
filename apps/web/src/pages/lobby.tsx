@@ -2,7 +2,7 @@ import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-1.png';
 import { Link } from 'react-router';
-import home from '../images/home.png'
+import home from '../images/home.svg'
 
 const backgroundStyle = css({
   display: "flex",
