@@ -4,6 +4,7 @@ import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import home from '../images/home.svg'
+import { logger } from 'src/utils/logger';
 
 // Type for the data items
 type RankingItem = {
@@ -13,18 +14,18 @@ type RankingItem = {
 };
 
 const button = css({
-  display: "flex",
-  width: "100%",
-  height: "90px",
-  padding: "16px 24px",
-  gap: "12px",
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: "12px",
-  backgroundColor: "#eeeeee",
-  marginTop: "30px",
-  fontSize: "4xl",
-  fontWeight: "semibold",
+  display: 'flex',
+  width: '100%',
+  height: '90px',
+  padding: '16px 24px',
+  gap: '12px',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: '12px',
+  backgroundColor: '#eeeeee',
+  marginTop: '30px',
+  fontSize: '4xl',
+  fontWeight: 'semibold',
 });
 
 function Result() {
@@ -41,7 +42,7 @@ function Result() {
         const fetchedData = await response.json();
         setData(fetchedData);
       } catch (error) {
-        console.error('Error fetching ranking data:', error);
+        logger.error('Error fetching ranking data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -143,7 +144,7 @@ function Result() {
             )}
           </div>
           <Link className={button} to="/">
-            <img src={home} style={{ width: '40px' }}/>
+            <img src={home} style={{ width: '40px' }} />
             홈으로
           </Link>
         </div>

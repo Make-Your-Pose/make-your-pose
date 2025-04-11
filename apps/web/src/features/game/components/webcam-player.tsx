@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useWebcam } from 'src/features/webcam/context';
+import { logger } from 'src/utils/logger';
 import { css } from '~styled-system/css';
 
 export function WebcamPlayer() {
@@ -64,7 +65,7 @@ export function WebcamPlayer() {
               maskBuffer = segmentationMask.getAsFloat32Array();
               maskType = 'float32';
             } else {
-              console.error('마스크 데이터를 Array 형태로 가져올 수 없습니다.');
+              logger.error('마스크 데이터를 Array 형태로 가져올 수 없습니다.');
               animationFrameRef.current = requestAnimationFrame(drawMask);
               return;
             }
@@ -99,7 +100,7 @@ export function WebcamPlayer() {
             // --- 7. 수정된 이미지 데이터를 캔버스에 다시 그리기 ---
             ctx.putImageData(imageData, 0, 0);
           } catch (error) {
-            console.error('마스크 처리 또는 렌더링 중 오류 발생:', error);
+            logger.error('마스크 처리 또는 렌더링 중 오류 발생:', error);
           }
         }
       }
