@@ -280,14 +280,16 @@ function Game() {
             className={vstack({
               alignItems: 'center',
               gap: '1',
-              px: '12',
-              py: '4',
+              width: '80%',
+              py: '6',
               bgColor: 'white',
               borderRadius: 'xl',
+              textStyle: '2xl',
+              fontWeight: 'medium'
             })}
           >
             Score
-            <div className={css({ textStyle: '2xl', fontWeight: 'bold' })}>
+            <div className={css({ textStyle: '6xl', fontWeight: 'bold' })}>
               {state.context.score}
             </div>
           </div>

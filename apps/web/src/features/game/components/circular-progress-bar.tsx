@@ -12,11 +12,16 @@ export const CircularProgressBar = ({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - rate * circumference;
 
+  // 메시지
+  let message = "조금만 더!";
+  if (similarity && similarity >= 90) message = "완벽해요!";
+  else if (similarity && similarity >= 80) message = "거의 비슷해요!";
+
   return (
     <div
       className={css({
         position: 'relative',
-        width: '300px',
+        width: '350px',
         height: '300px',
       })}
     >
@@ -30,16 +35,16 @@ export const CircularProgressBar = ({
         viewBox="0 0 300 300"
       >
         {/* Background circle */}
-        <circle
+        {/* <circle
           cx="150"
           cy="150"
           r={radius}
           fill="transparent"
           stroke="rgba(255,255,255,0.2)"
           strokeWidth="10"
-        />
+        /> */}
         {/* Foreground circle (progress) */}
-        <circle
+        {/* <circle
           cx="150"
           cy="150"
           r={radius}
@@ -49,7 +54,7 @@ export const CircularProgressBar = ({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-        />
+        /> */}
       </svg>
 
       {/* Add similarity percentage in the center */}
@@ -59,16 +64,34 @@ export const CircularProgressBar = ({
             position: 'absolute',
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%)',
+            transform: 'translate(-50%, -100%)',
             textAlign: 'center',
             color: 'white',
             fontWeight: 'bold',
-            fontSize: '100px',
+            fontSize: '120px',
           })}
         >
           {similarity}%
         </div>
       )}
+      <div
+        className={
+          css({
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, 0%)',
+            justifyContent: "center",
+            textAlign: "center",
+            width: "100%",
+            padding: "20px 0",
+            textStyle: "3xl",
+            fontWeight: "semibold",
+            background: "linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.75) 8%, rgba(255, 255, 255, 0.90) 50%, rgba(255, 255, 255, 0.75) 92%, rgba(255, 255, 255, 0.00) 100%)",
+          })
+        }>
+        {message}
+      </div>
     </div>
   );
 };
