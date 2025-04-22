@@ -1,3 +1,5 @@
+import type { RequestHandler } from '../router';
+
 // UUID 생성 함수
 function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -7,10 +9,16 @@ function generateUUID() {
   });
 }
 
-export async function onRequestPost(context) {
+interface RequestBody {
+  score: number;
+  category: string;
+  username: string;
+}
+
+export const addCategoryRanking: RequestHandler = async (request, env) => {
   try {
     // Parse the request body
-    const requestBody = await context.request.json();
+    const requestBody = await request.json<RequestBody>();
 
     // Extract data from the request or use defaults
     const id = generateUUID();
@@ -33,7 +41,7 @@ export async function onRequestPost(context) {
     }
 
     // D1 데이터베이스 접근
-    const db = context.env.DB;
+    const db = env.DB;
 
     // 데이터 삽입 쿼리 실행
     const stmt = await db
@@ -64,8 +72,7 @@ export async function onRequestPost(context) {
     // 오류 처리
     return new Response(
       JSON.stringify({
-        success: false,
-        error: error.message,
+        error,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -73,4 +80,4 @@ export async function onRequestPost(context) {
       },
     );
   }
-}
+};
