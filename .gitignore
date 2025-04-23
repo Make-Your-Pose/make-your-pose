@@ -35,3 +35,7 @@ yarn-error.log*
 ## Panda
 styled-system
 styled-system-studio
+
+# wrangler files
+.wrangler
+.dev.vars*
