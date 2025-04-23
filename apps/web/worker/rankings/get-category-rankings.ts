@@ -4,6 +4,7 @@ export const getCategoryRankings: RequestHandler = async (request, env) => {
   try {
     // Get the category from the path parameter
     const { category } = request.params;
+    console.log(`Fetching rankings for category: ${category}`);
 
     // Connect to D1 database
     const db = env.DB;
@@ -26,11 +27,16 @@ export const getCategoryRankings: RequestHandler = async (request, env) => {
       .bind(category)
       .all();
 
+    console.log(
+      `Successfully fetched ${results?.length ?? 0} rankings for category: ${category}`,
+    );
+
     // Return the results as JSON
     return new Response(JSON.stringify(results), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
+    console.error('Error fetching category rankings:', error);
     return new Response(JSON.stringify({ error }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

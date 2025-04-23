@@ -7,21 +7,25 @@ interface RequestBody {
 }
 
 export const addCategoryRanking: RequestHandler = async (request, env) => {
+  console.log('Attempting to add category ranking...');
   try {
     // Parse the request body
     const requestBody = await request.json<RequestBody>();
+    console.log('Request body parsed:', requestBody);
 
     // Extract data from the request
     const { id, score, category, username } = requestBody;
 
     // Validate required parameters
     if (!id) {
+      console.error('Validation failed: Parameter "id" is required');
       return new Response(
         JSON.stringify({ success: false, error: 'Parameter "id" is required' }),
         { headers: { 'Content-Type': 'application/json' }, status: 400 },
       );
     }
     if (score === undefined || score === null) {
+      console.error('Validation failed: Parameter "score" is required');
       return new Response(
         JSON.stringify({
           success: false,
@@ -31,6 +35,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
       );
     }
     if (!category) {
+      console.error('Validation failed: Parameter "category" is required');
       return new Response(
         JSON.stringify({
           success: false,
@@ -40,6 +45,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
       );
     }
     if (!username) {
+      console.error('Validation failed: Parameter "username" is required');
       return new Response(
         JSON.stringify({
           success: false,
@@ -51,6 +57,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
 
     // Validate score (must be a number)
     if (Number.isNaN(Number(score))) {
+      console.error('Validation failed: Score must be a number');
       return new Response(
         JSON.stringify({
           success: false,
@@ -67,6 +74,9 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
     const db = env.DB;
 
     // 데이터 삽입 쿼리 실행
+    console.log(
+      `Inserting ranking: ID=${id}, Score=${score}, Category=${category}, Username=${username}`,
+    );
     const stmt = await db
       .prepare(
         'INSERT INTO Leaderboards (id, score, category, username) VALUES (?, ?, ?, ?)',
@@ -74,6 +84,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
       .bind(id, score, category, username);
 
     await stmt.run();
+    console.log('Ranking successfully inserted.');
 
     // 성공 응답 반환
     return new Response(
@@ -92,6 +103,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
       },
     );
   } catch (error) {
+    console.error('Error adding category ranking:', error);
     // 오류 처리
     return new Response(
       JSON.stringify({
