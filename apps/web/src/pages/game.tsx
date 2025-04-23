@@ -46,7 +46,7 @@ function Game() {
   const [progressRate, setProgressRate] = useState(0);
   const webcam = useWebcam();
   const navigate = useNavigate();
-  const { nickname } = useNickname();
+  const { id, nickname } = useNickname();
 
   const [state, send] = useMachine(gameMachine, { inspect });
 
@@ -119,6 +119,7 @@ function Game() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              id,
               score: state.context.score,
               username: nickname,
               category: 'sports',
@@ -140,7 +141,7 @@ function Game() {
 
       postScore();
     }
-  }, [isGameOver, navigate, state.context.score, nickname]);
+  }, [isGameOver, navigate, state.context.score, id, nickname]);
 
   useEffect(() => {
     if (hintTime === null) return;

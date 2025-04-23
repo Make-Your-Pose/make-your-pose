@@ -1,15 +1,6 @@
 import type { RequestHandler } from '../router';
-
-// UUID 생성 함수
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
 interface RequestBody {
+  id: string;
   score: number;
   category: string;
   username: string;
@@ -20,11 +11,43 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
     // Parse the request body
     const requestBody = await request.json<RequestBody>();
 
-    // Extract data from the request or use defaults
-    const id = generateUUID();
-    const score = requestBody.score || 0;
-    const category = requestBody.category || 'sports';
-    const username = requestBody.username || 'Anonymous';
+    // Extract data from the request
+    const { id, score, category, username } = requestBody;
+
+    // Validate required parameters
+    if (!id) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Parameter "id" is required' }),
+        { headers: { 'Content-Type': 'application/json' }, status: 400 },
+      );
+    }
+    if (score === undefined || score === null) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Parameter "score" is required',
+        }),
+        { headers: { 'Content-Type': 'application/json' }, status: 400 },
+      );
+    }
+    if (!category) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Parameter "category" is required',
+        }),
+        { headers: { 'Content-Type': 'application/json' }, status: 400 },
+      );
+    }
+    if (!username) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Parameter "username" is required',
+        }),
+        { headers: { 'Content-Type': 'application/json' }, status: 400 },
+      );
+    }
 
     // Validate score (must be a number)
     if (Number.isNaN(Number(score))) {

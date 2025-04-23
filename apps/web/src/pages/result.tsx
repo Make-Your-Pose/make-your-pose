@@ -3,8 +3,9 @@ import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import home from '../images/home.svg'
+import home from '../images/home.svg';
 import { logger } from 'src/utils/logger';
+import { useNickname } from 'src/features/nickname/context';
 
 // Type for the data items
 type RankingItem = {
@@ -31,6 +32,8 @@ const button = css({
 function Result() {
   const [data, setData] = useState<RankingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const { id, regenerateNickname } = useNickname();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,6 +131,10 @@ function Result() {
                     borderBottom: '1px solid',
                     borderColor: 'white',
                     color: 'white',
+                    backgroundColor:
+                      id === item.ID
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'transparent',
                   })}
                 >
                   <div className={css({ px: '2', fontWeight: 'bold' })}>
@@ -143,7 +150,7 @@ function Result() {
               ))
             )}
           </div>
-          <Link className={button} to="/">
+          <Link className={button} to="/" onClick={() => regenerateNickname()}>
             <img src={home} style={{ width: '40px' }} />
             홈으로
           </Link>

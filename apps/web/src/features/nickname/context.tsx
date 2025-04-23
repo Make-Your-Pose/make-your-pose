@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 // Lists of adjectives and nouns in Korean
 const adjectives = [
@@ -317,12 +318,14 @@ const generateNickname = (): string => {
 
 // Type for the nickname context
 type NicknameContextType = {
+  id: string; // Add id field
   nickname: string;
   regenerateNickname: () => void;
 };
 
 // Create the context with default values
 const NicknameContext = createContext<NicknameContextType>({
+  id: '', // Add default id
   nickname: '',
   regenerateNickname: () => {},
 });
@@ -334,22 +337,25 @@ export const useNickname = () => useContext(NicknameContext);
 export const NicknameProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [id, setId] = useState<string>(''); // Add id state
   const [nickname, setNickname] = useState<string>('');
 
-  // Generate a nickname on initial render
+  // Generate a nickname and id on initial render
   useEffect(() => {
     const newNickname = generateNickname();
     setNickname(newNickname);
+    setId(uuidv4()); // Generate and set UUID v4
   }, []);
 
   // Function to regenerate the nickname
   const regenerateNickname = () => {
     const newNickname = generateNickname();
     setNickname(newNickname);
+    setId(uuidv4());
   };
 
   return (
-    <NicknameContext.Provider value={{ nickname, regenerateNickname }}>
+    <NicknameContext.Provider value={{ id, nickname, regenerateNickname }}>
       {children}
     </NicknameContext.Provider>
   );

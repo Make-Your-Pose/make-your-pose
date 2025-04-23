@@ -7,6 +7,7 @@ export const gameMachine = setup({
       round: number;
       score: number;
       maxRound: number;
+      comboCount: number;
     },
     events: {} as
       | { type: 'timeout' }
@@ -65,6 +66,7 @@ export const gameMachine = setup({
     round: 0,
     score: 0,
     maxRound: 5,
+    comboCount: 0,
   },
   initial: 'pending',
   states: {
@@ -81,11 +83,26 @@ export const gameMachine = setup({
         pass: {
           target: 'answer',
           actions: assign({
-            score: ({ context, event }) => context.score + event.score,
+            score: ({ context, event }) => {
+              const { score } = event;
+              const baseScore = score;
+              const hintBonus =
+                (8 - context.hint.filter((hint) => hint).length) * 5;
+              const comboBonus = context.comboCount * 10;
+
+              const newScore = baseScore + hintBonus + comboBonus;
+              const totalScore = context.score + newScore;
+
+              return totalScore;
+            },
+            comboCount: ({ context }) => context.comboCount + 1,
           }),
         },
         fail: {
           target: 'wrong',
+          actions: assign({
+            comboCount: () => 0,
+          }),
         },
         next: [
           {
