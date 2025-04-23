@@ -21,7 +21,7 @@ export const getCategoryRankings: RequestHandler = async (request, env) => {
     // Execute the query to get top 10 entries for the specified category
     const { results } = await db
       .prepare(
-        'SELECT ID, Category, Username, Score FROM Leaderboards WHERE Category = ? ORDER BY Score DESC LIMIT 10',
+        'SELECT ID, Category, Username, Score FROM Leaderboards WHERE Category = ? ORDER BY Score DESC',
       )
       .bind(category)
       .all();
