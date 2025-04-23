@@ -73,7 +73,7 @@ export const addCategoryRanking: RequestHandler = async (request, env) => {
       )
       .bind(id, score, category, username);
 
-    const result = await stmt.run();
+    await stmt.run();
 
     // 성공 응답 반환
     return new Response(
