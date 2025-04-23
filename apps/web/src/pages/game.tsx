@@ -5,7 +5,7 @@ import bg1 from '../images/bg-1.png';
 import { useMachine } from '@xstate/react';
 import { gameMachine } from 'src/features/game/machine';
 import { Hint } from 'src/features/game/components/hint';
-import { CircularProgressBar } from '../features/game/components/circular-progress-bar';
+import { SimilarityBoard } from '../features/game/components/similarity-board';
 import { inspect } from '../features/devtool/inspector';
 import { useWebcam } from 'src/features/webcam/context';
 import { WebcamPlayer } from 'src/features/game/components/webcam-player';
@@ -304,7 +304,7 @@ function Game() {
             })}
           >
             {hintTime !== null ? (
-              <CircularProgressBar
+              <SimilarityBoard
                 rate={progressRate}
                 similarity={similarityPercentage}
               />
