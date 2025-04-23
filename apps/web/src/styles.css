@@ -1,3 +1,7 @@
+body {
+  overflow: hidden; 
+}
+
 button:focus,
 a:focus,
 input:focus,
