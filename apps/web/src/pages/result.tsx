@@ -64,7 +64,7 @@ function Result() {
         block: 'center',
       });
     }
-  }, [isLoading, data, id]);
+  }, [isLoading]);
 
   return (
     <div>
