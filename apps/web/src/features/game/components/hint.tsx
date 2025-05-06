@@ -24,7 +24,7 @@ export function Hint({ hint }: Props) {
           key={index}
           style={{
             position: 'relative',
-            perspective: '1000px', // Add perspective for 3D effect
+            perspective: '1000px',
           }}
         >
           <motion.div

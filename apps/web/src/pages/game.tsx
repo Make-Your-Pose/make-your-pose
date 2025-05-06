@@ -273,7 +273,7 @@ function Game() {
               })}
             />
 
-            <Hint hint={state.context.hint} />
+            <Hint key={state.context.round} hint={state.context.hint} />
           </div>
         </div>
         <div className={vstack({ gap: '4', height: '100%' })}>
