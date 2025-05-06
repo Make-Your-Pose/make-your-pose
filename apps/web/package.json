@@ -20,6 +20,7 @@
     "@types/three": "^0.170.0",
     "@xstate/react": "^5.0.3",
     "itty-router": "^5.0.18",
+    "motion": "^12.9.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.1.1",
