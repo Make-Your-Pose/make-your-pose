@@ -1,3 +1,5 @@
+import { motion } from 'motion/react';
+
 interface Props {
   hint: boolean[];
 }
@@ -25,15 +27,17 @@ export function Hint({ hint }: Props) {
             perspective: '1000px', // Add perspective for 3D effect
           }}
         >
-          <div
+          <motion.div
             style={{
               position: 'absolute',
               width: '100%',
               height: '100%',
-              transition: 'transform 0.6s',
               transformStyle: 'preserve-3d',
-              transform: isVisible ? 'rotateY(180deg)' : 'rotateY(0deg)',
             }}
+            animate={{
+              rotateY: isVisible ? 180 : 0,
+            }}
+            transition={{ duration: 0.6 }}
           >
             {/* Front face (visible when hint is not revealed) */}
             <div
@@ -59,7 +63,7 @@ export function Hint({ hint }: Props) {
                 transform: 'rotateY(180deg)',
               }}
             />
-          </div>
+          </motion.div>
         </div>
       ))}
     </div>
