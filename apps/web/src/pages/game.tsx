@@ -286,7 +286,7 @@ function Game() {
               bgColor: 'white',
               borderRadius: 'xl',
               textStyle: '2xl',
-              fontWeight: 'medium'
+              fontWeight: 'medium',
             })}
           >
             Score

@@ -1,9 +1,10 @@
 import { css } from '~styled-system/css';
 import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import home from '../images/home.svg';
+import { motion } from 'motion/react';
 import { logger } from 'src/utils/logger';
 import { useNickname } from 'src/features/nickname/context';
 
@@ -32,6 +33,8 @@ const button = css({
 function Result() {
   const [data, setData] = useState<RankingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const meItemRef = useRef<HTMLDivElement>(null);
 
   const { id, regenerateNickname } = useNickname();
 
@@ -53,6 +56,15 @@ function Result() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!isLoading && meItemRef.current && scrollContainerRef.current) {
+      meItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [isLoading, data, id]);
 
   return (
     <div>
@@ -103,53 +115,131 @@ function Result() {
           >
             Leaderboard
           </div>
-          <div
-            className={css({
-              flex: '1',
-              borderRadius: '2xl',
-              border: '1px solid',
-              borderColor: 'white',
-              width: '500px',
-
-              bgColor: 'rgba(0, 0, 0, 0.1)',
-              backdropFilter: 'auto',
-              backdropBlur: 'md',
-            })}
-          >
-            {isLoading ? (
+          {isLoading ? (
+            <div
+              className={css({
+                flex: '1',
+                borderRadius: '2xl',
+                border: '1px solid',
+                borderColor: 'white',
+                width: '500px',
+                overflowY: 'auto',
+                bgColor: 'rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'auto',
+                backdropBlur: '2xl',
+                px: '8',
+                py: '4',
+              })}
+            >
               <div
                 className={css({ color: 'white', p: '4', textAlign: 'center' })}
               >
                 Loading data...
               </div>
-            ) : (
-              data.map((item, index) => (
-                <div
-                  key={item.ID}
-                  className={hstack({
-                    p: '4',
-                    borderBottom: '1px solid',
-                    borderColor: 'white',
-                    color: 'white',
-                    backgroundColor:
-                      id === item.ID
-                        ? 'rgba(255, 255, 255, 0.1)'
-                        : 'transparent',
-                  })}
-                >
-                  <div className={css({ px: '2', fontWeight: 'bold' })}>
-                    {index + 1}
+            </div>
+          ) : (
+            <motion.div
+              ref={scrollContainerRef}
+              className={css({
+                flex: '1',
+                borderRadius: '2xl',
+                border: '1px solid',
+                borderColor: 'white',
+                width: '500px',
+                overflowY: 'auto',
+                bgColor: 'rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'auto',
+                backdropBlur: '2xl',
+                px: '8',
+                py: '4',
+              })}
+              initial={{ scale: 0.5, opacity: 0 }} // Start smaller and invisible
+              animate={{ scale: 1, opacity: 1 }} // Animate to normal size and visible
+              transition={{
+                duration: 0.5,
+                type: 'spring',
+                bounce: 0.5,
+              }} // Define animation duration and easing
+            >
+              {data.map((item, index) => {
+                const isMe = item.ID === id;
+
+                return (
+                  <div
+                    key={item.ID}
+                    ref={isMe ? meItemRef : null}
+                    className={css({
+                      display: 'flex',
+                      padding: '4',
+                      borderBottom: '1px solid',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      fontSize: 'lg',
+                      position: 'relative',
+                      alignItems: 'center',
+                    })}
+                  >
+                    <motion.div
+                      className={hstack({ width: '100%' })}
+                      animate={
+                        isMe
+                          ? { scale: [1, 1.05, 1], zIndex: 1 }
+                          : { scale: 1, zIndex: 0 }
+                      }
+                      transition={
+                        isMe
+                          ? {
+                              delay: 0.5,
+                              duration: 0.5,
+                              ease: 'easeInOut',
+                              repeat: 3,
+                              repeatType: 'mirror',
+                            }
+                          : {}
+                      }
+                    >
+                      <div
+                        className={css({
+                          px: '4',
+                          py: '2',
+                          borderRadius: 'lg',
+                          fontWeight: 'bold',
+                          backgroundColor: isMe ? 'white' : 'transparent',
+                          color: isMe ? 'black' : 'white',
+                        })}
+                      >
+                        {isMe ? '나' : index + 1}
+                      </div>
+                      <div
+                        className={css({
+                          px: '4',
+                          py: '2',
+                          flex: 1,
+                          borderRadius: 'lg',
+                          fontWeight: 'bold',
+                          backgroundColor: isMe ? 'white' : 'transparent',
+                          color: isMe ? 'black' : 'white',
+                        })}
+                      >
+                        {item.Username}
+                      </div>
+                      <div
+                        className={css({
+                          px: '4',
+                          py: '2',
+                          fontWeight: 'bold',
+                          borderRadius: 'lg',
+                          backgroundColor: isMe ? 'white' : 'transparent',
+                          color: isMe ? 'black' : 'white',
+                        })}
+                      >
+                        {item.Score}
+                      </div>
+                    </motion.div>
                   </div>
-                  <div className={css({ flex: 1, fontWeight: 'bold' })}>
-                    {item.Username}
-                  </div>
-                  <div className={css({ fontWeight: 'bold' })}>
-                    {item.Score}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                );
+              })}
+            </motion.div>
+          )}
           <Link className={button} to="/" onClick={() => regenerateNickname()}>
             <img src={home} style={{ width: '40px' }} />
             홈으로
