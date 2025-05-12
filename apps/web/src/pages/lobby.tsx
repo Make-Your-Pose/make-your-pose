@@ -1,9 +1,12 @@
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
-import bg1 from '../images/bg-1.png';
+import bg1 from '../images/bg-stage-dimmed.jpg';
+import category1 from '../images/bg-1.png';
 import { Link } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
+import CircleLineLeft from 'src/features/game/components/circle-line-left';
+import CircleLineRight from 'src/features/game/components/circle-line-right';
 
 const backgroundStyle = css({
   display: 'flex',
@@ -12,15 +15,11 @@ const backgroundStyle = css({
 });
 
 const titleStyle = css({
-  justifyContent: 'center',
-  textAlign: 'center',
-  width: '40%',
-  padding: '20px 0',
-  marginBottom: '32px',
-  textStyle: '3xl',
+  textStyle: '4xl',
   fontWeight: 'semibold',
-  background:
-    'linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.80) 13%, #FFF 45%, rgba(255, 255, 255, 0.80) 90%, rgba(255, 255, 255, 0.00) 100%)',
+  textAlign: 'center',
+  justifyContent: 'center',
+  color: '#FFFFFF',
 });
 
 const categoryCard = css({
@@ -33,7 +32,7 @@ const categoryCard = css({
   height: '36.6vh',
   bgSize: 'cover',
   bgPosition: 'center',
-  borderRadius: '2xl',
+  borderRadius: '24px',
   padding: '32px',
 });
 
@@ -79,7 +78,7 @@ function Lobby() {
           bottom: '70px',
           right: '50px',
           padding: '16px 20px',
-          borderRadius: '12px',
+          borderRadius: '999px',
           backgroundColor: '#ffffff',
           boxShadow: 'md',
           zIndex: 10,
@@ -99,7 +98,6 @@ function Lobby() {
             bgSize: 'cover',
             bgPosition: 'center',
             filter: 'auto',
-            blur: '3xl',
           })}
           style={{
             backgroundImage: `url(${bg1})`,
@@ -116,8 +114,10 @@ function Lobby() {
             marginTop: '70px',
           })}
         >
-          <div className={titleStyle}>
-            플레이 하고 싶은 카테고리를 선택하세요
+          <div className={css({ display: 'flex', gap: '32px', marginBottom: '5vh', alignItems: 'center' })}>
+            <CircleLineLeft/>
+              <div className={titleStyle}>플레이 하고 싶은 카테고리를 선택하세요</div>
+            <CircleLineRight/>
           </div>
           <motion.div // Wrap container with motion.div
             className={css({
@@ -136,7 +136,7 @@ function Lobby() {
               to="/game"
               className={categoryCard}
               style={{
-                backgroundImage: `linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
               variants={itemVariants} // Apply item variants
               whileHover={{ scale: 1.05 }} // Add hover effect
@@ -147,7 +147,9 @@ function Lobby() {
 
             <motion.div // Wrap div with motion.div
               className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
+              style={{
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
               variants={itemVariants} // Apply item variants
               whileHover={{ scale: 1.05 }} // Add hover effect
             >
@@ -157,7 +159,9 @@ function Lobby() {
 
             <motion.div // Wrap div with motion.div
               className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
+              style={{
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
               variants={itemVariants} // Apply item variants
               whileHover={{ scale: 1.05 }} // Add hover effect
             >
@@ -167,7 +171,9 @@ function Lobby() {
 
             <motion.div // Wrap div with motion.div
               className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
+              style={{
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
               variants={itemVariants} // Apply item variants
               whileHover={{ scale: 1.05 }} // Add hover effect
             >

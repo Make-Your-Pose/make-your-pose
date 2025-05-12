@@ -7,8 +7,10 @@ import tutorial1 from '../images/description_image_1.svg';
 import tutorial2 from '../images/description_image_2.svg';
 import tutorial3 from '../images/description_image_3.svg';
 import rightChevron from '../images/right-arrow-chevron.svg';
-import bg1 from '../images/bg-1.png';
+import bg1 from '../images/bg-stage-dimmed.jpg';
 import home from '../images/home.svg';
+import CircleLineLeft from 'src/features/game/components/circle-line-left';
+import CircleLineRight from 'src/features/game/components/circle-line-right';
 
 const backgroundStyle = css({
   display: 'flex',
@@ -22,15 +24,11 @@ const backgroundStyle = css({
 });
 
 const titleStyle = css({
-  width: '40%',
-  padding: '20px 0',
-  marginBottom: '32px',
-  textStyle: '3xl',
+  textStyle: '4xl',
   fontWeight: 'semibold',
   textAlign: 'center',
-  background:
-    'linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.80) 13%, #FFF 45%, rgba(255, 255, 255, 0.80) 90%, rgba(255, 255, 255, 0.00) 100%)',
   justifyContent: 'center',
+  color: '#FFFFFF',
 });
 
 const containerStyle = css({
@@ -38,7 +36,7 @@ const containerStyle = css({
   flexDirection: 'row',
   alignItems: 'stretch',
   gap: '48px',
-  width: '70vw',
+  width: '60vw',
   height: '75vh',
 });
 
@@ -51,7 +49,7 @@ const boxStyle = css({
   height: '100%',
   padding: '40px',
   backgroundColor: 'white',
-  borderRadius: '20px',
+  borderRadius: '40px',
   boxShadow: 'lg',
   overflow: 'hidden', // Add overflow hidden to contain the animation
 });
@@ -69,7 +67,7 @@ const button = css({
   padding: '16px 24px',
   justifyContent: 'center',
   alignItems: 'center',
-  borderRadius: '12px',
+  borderRadius: '24px',
   backgroundColor: '#eeeeee',
   marginTop: '30px',
   fontSize: '3xl',
@@ -241,7 +239,7 @@ function Tutorial() {
           bottom: '70px',
           right: '50px',
           padding: '16px 20px',
-          borderRadius: '12px',
+          borderRadius: '999px',
           backgroundColor: '#ffffff',
           boxShadow: 'md',
           zIndex: 10,
@@ -261,7 +259,6 @@ function Tutorial() {
             bgSize: 'cover',
             bgPosition: 'center',
             filter: 'auto',
-            blur: '3xl',
           })}
           style={{
             backgroundImage: `url(${bg1})`,
@@ -278,7 +275,12 @@ function Tutorial() {
             paddingInline: '0rem',
           })}
         >
-          <div className={titleStyle}>게임 설명</div>
+          <div className={css({ display: 'flex', gap: '32px', marginBottom: '5vh', alignItems: 'center' })}>
+            <CircleLineLeft/>
+            <div className={titleStyle}>게임 설명</div>
+            <CircleLineRight/>
+          </div>
+          {/* Add a button to enter manual mode */}
           {/* Card */}
           {/* Wrap the containerStyle div with motion.div and add animation props */}
           <motion.div
@@ -383,7 +385,7 @@ function Tutorial() {
               </div>
 
               <Link className={button} to="/lobby">
-                스킵하기
+                Skip
                 <img alt="" src={rightChevron} aria-hidden />
               </Link>
             </div>
