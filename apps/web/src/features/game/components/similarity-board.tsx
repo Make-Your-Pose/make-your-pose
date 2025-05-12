@@ -43,6 +43,8 @@ export const SimilarityBoard = ({
             color: 'white',
             fontWeight: 'bold',
             fontSize: '120px',
+            fontFamily: 'GmarketSansBold',
+            textShadow: '0px 0px 12px rgba(255, 103, 1, 0.95)',
           })}
         >
           {similarity}%

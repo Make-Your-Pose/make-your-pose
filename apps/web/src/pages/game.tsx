@@ -185,7 +185,7 @@ function Game() {
           bottom: '70px',
           right: '50px',
           padding: '16px 20px',
-          borderRadius: '12px',
+          borderRadius: '999px',
           backgroundColor: '#ffffff',
           boxShadow: 'md',
           zIndex: 10,
@@ -272,11 +272,10 @@ function Game() {
             width: '80%',
             py: '6',
             bgColor: 'white',
-            borderRadius: 'xl',
-            textStyle: '2xl',
-            fontWeight: 'medium'
+            borderRadius: '16px',
+            textStyle: '3xl',
           })}>Score
-            <div className={css({ textStyle: '6xl', fontWeight: 'bold' })}>{state.context.score}</div>
+            <div className={css({ textStyle: '6xl', fontWeight: 'bold', marginTop: '12px' })}>{state.context.score}</div>
           </div>
           <div className={vstack({
             alignItems: 'center',
@@ -306,6 +305,26 @@ function Game() {
                     })}
                   >+{scoreReaction}</div>
                 )}
+
+                {!scoreReaction && (
+                      <div
+                        key="miss"
+                        className={css({
+                          position: 'absolute',
+                          top: '28%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          fontWeight: 'bold',
+                          fontSize: '6xl',
+                          color: '#FF6701',
+                          animation: 'floatUpFade 1s ease-out forwards',
+                          pointerEvents: 'none',
+                          zIndex: 5,
+                        })}
+                      >
+                        Miss
+                      </div>
+                  )}
               </>
             )}
           </div>
