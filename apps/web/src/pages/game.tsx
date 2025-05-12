@@ -6,18 +6,11 @@ import { useMachine } from '@xstate/react';
 import { gameMachine } from 'src/features/game/machine';
 import { Hint } from 'src/features/game/components/hint';
 import { SimilarityBoard } from '../features/game/components/similarity-board';
-import { inspect } from '../features/devtool/inspector';
+import { inspect } from 'src/features/devtool/inspector';
 import { useWebcam } from 'src/features/webcam/context';
 import { WebcamPlayer } from 'src/features/game/components/webcam-player';
-import {
-  // calculateAngleSimilarity,
-  // calculateCombinedSimilarity,
-  // calculateDistanceSimilarity,
-  // getPoseAngles,
-  calculateCosineSimilarity,
-} from 'src/pose/landmarks';
+import { calculateCosineSimilarity } from 'src/pose/landmarks';
 import { useNickname } from 'src/features/nickname/context';
-
 import answers from '../data/1-sports';
 import { Link, useNavigate } from 'react-router';
 import home from '../images/home.svg';
@@ -37,24 +30,20 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 const shuffledAnswers = shuffleArray(answers);
 
 function Game() {
-  // const [combinedSimilarity, setCombinedSimilarity] = useState<number | null>(
-  //   null,
-  // );
   const cosineSimilarityRef = useRef<number | null>(null);
   const lastCalculationTimeRef = useRef<number>(0);
-  const highScoreStartTimeRef = useRef<number | null>(null); // Track when score first reached 85+
+  const highScoreStartTimeRef = useRef<number | null>(null);
   const [progressRate, setProgressRate] = useState(0);
+  const [scoreReaction, setScoreReaction] = useState<number | null>(null);
+  const [lastPassedScore, setLastPassedScore] = useState<number | null>(null);
+  const [hasPassed, setHasPassed] = useState(false);
   const webcam = useWebcam();
   const navigate = useNavigate();
   const { id, nickname } = useNickname();
-
   const [state, send] = useMachine(gameMachine, { inspect });
-
   const answer = shuffledAnswers[state.context.round];
-
   const [hintTime, setHintTime] = useState<number | null>(null);
   const hintDuration = 3000;
-
   const isPlaying = state.matches('playing');
   const isGameOver = state.matches('gameOver');
 
@@ -71,7 +60,7 @@ function Game() {
         lastCalculationTimeRef.current = currentTime; // Update the timestamp
 
         // Check similarity immediately after calculation
-        if (isPlaying) {
+        if (isPlaying && !hasPassed) {
           const score = Math.round(cosine * 100);
           logger.log('Checking similarity:', score);
 
@@ -82,13 +71,11 @@ function Game() {
             }
 
             // Check if we've maintained the score for at least 500ms
-            const highScoreDuration =
-              currentTime - (highScoreStartTimeRef.current || currentTime);
+            const highScoreDuration = currentTime - highScoreStartTimeRef.current;
             if (highScoreDuration >= 500) {
-              logger.log(
-                'Sending pass event after maintaining score for 500ms:',
-                score,
-              );
+              highScoreStartTimeRef.current = null;
+              setLastPassedScore(score);
+              setHasPassed(true);
               send({ type: 'pass', score });
             }
           } else {
@@ -98,7 +85,7 @@ function Game() {
         }
       }
     }
-  }, [webcam.poseLandmarkerResult, answer, isPlaying, send]);
+  }, [webcam.poseLandmarkerResult, answer, isPlaying, hasPassed, send]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -126,7 +113,7 @@ function Game() {
             }),
           });
 
-          if (!response.ok) {
+         if (!response.ok) {
             throw new Error('Failed to record score');
           }
 
@@ -138,13 +125,12 @@ function Game() {
         // Navigate to result page after recording score
         navigate('/result');
       };
-
       postScore();
     }
   }, [isGameOver, navigate, state.context.score, id, nickname]);
 
   useEffect(() => {
-    if (hintTime === null) return;
+    if (hintTime === null || scoreReaction !== null) return;
 
     let animationFrameId: number;
 
@@ -158,6 +144,8 @@ function Game() {
 
       if (remainingTime <= 0) {
         setHintTime(Date.now());
+
+        setHasPassed(false);
         send({ type: 'next' });
       } else {
         animationFrameId = requestAnimationFrame(updateTimer);
@@ -166,10 +154,21 @@ function Game() {
 
     animationFrameId = requestAnimationFrame(updateTimer);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [hintTime, send]);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [hintTime, scoreReaction, send]);
+
+  useEffect(() => {
+    if (lastPassedScore !== null) {
+      setScoreReaction(lastPassedScore);
+      const timeout = setTimeout(() => {
+        setScoreReaction(null);
+        send({ type: 'next' });
+        setLastPassedScore(null);
+        setHasPassed(false);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [lastPassedScore, send]);
 
   // Calculate similarity percentage value
   const similarityPercentage =
@@ -205,58 +204,47 @@ function Game() {
           bgSize: 'cover',
           bgPosition: 'center',
         })}
-        style={{
-          backgroundImage: `url(${bg1})`,
-        }}
+        style={{ backgroundImage: `url(${bg1})` }}
       />
-
-      <div
-        className={hstack({
-          gap: '12',
-          justify: 'center',
-          position: 'relative',
-          width: '100vw',
-          height: '100vh',
-          px: '12',
-          py: '16',
-        })}
-      >
+      <div className={hstack({
+        gap: '12',
+        justify: 'center',
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        px: '12',
+        py: '16',
+      })}>
+        {/* left column */}
         <div className={vstack({ gap: '4', height: '100%' })}>
-          <div
-            className={css({
-              display: 'inline-flex',
-              px: '8',
-              py: '2',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 'full',
-              border: '1px solid',
-              borderColor: 'white',
-              textStyle: '2xl',
-              fontWeight: 'bold',
-              color: 'white',
-              backdropFilter: 'auto',
-              backdropBlur: '2xl',
-              bgColor: 'rgba(0, 0, 0, 0.1)',
-            })}
-          >
-            Round {state.context.round + 1}
-          </div>
-          <div
-            className={css({
-              flex: '1',
-              borderRadius: '2xl',
-              border: '1px solid',
-              borderColor: 'white',
-              width: '600px',
-              overflow: 'hidden',
-              position: 'relative',
-
-              bgColor: 'rgba(0, 0, 0, 0.1)',
-              backdropFilter: 'auto',
-              backdropBlur: 'md',
-            })}
-          >
+          <div className={css({
+            display: 'inline-flex',
+            px: '8',
+            py: '2',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 'full',
+            border: '1px solid',
+            borderColor: 'white',
+            textStyle: '2xl',
+            fontWeight: 'bold',
+            color: 'white',
+            backdropFilter: 'auto',
+            backdropBlur: '2xl',
+            bgColor: 'rgba(0, 0, 0, 0.1)',
+          })}>Round {state.context.round + 1}</div>
+          <div className={css({
+            flex: '1',
+            borderRadius: '2xl',
+            border: '1px solid',
+            borderColor: 'white',
+            width: '600px',
+            overflow: 'hidden',
+            position: 'relative',
+            bgColor: 'rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'auto',
+            backdropBlur: 'md',
+          })}>
             <img
               src={answer.image}
               width="100%"
@@ -269,87 +257,88 @@ function Game() {
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
-                transform: 'scaleX(-1)', // Flip horizontally (mirror effect)
+                transform: 'scaleX(-1)',
               })}
             />
 
             <Hint key={state.context.round} hint={state.context.hint} />
           </div>
         </div>
+        {/* middle column */}
         <div className={vstack({ gap: '4', height: '100%' })}>
-          <div
-            className={vstack({
-              alignItems: 'center',
-              gap: '1',
-              width: '80%',
-              py: '6',
-              bgColor: 'white',
-              borderRadius: 'xl',
-              textStyle: '2xl',
-              fontWeight: 'medium',
-            })}
-          >
-            Score
-            <div className={css({ textStyle: '6xl', fontWeight: 'bold' })}>
-              {state.context.score}
-            </div>
+          <div className={vstack({
+            alignItems: 'center',
+            gap: '1',
+            width: '80%',
+            py: '6',
+            bgColor: 'white',
+            borderRadius: 'xl',
+            textStyle: '2xl',
+            fontWeight: 'medium'
+          })}>Score
+            <div className={css({ textStyle: '6xl', fontWeight: 'bold' })}>{state.context.score}</div>
           </div>
-
-          <div
-            className={vstack({
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '1',
-              width: '300px',
-              flex: '1',
-            })}
-          >
-            {hintTime !== null ? (
-              <SimilarityBoard
-                rate={progressRate}
-                similarity={similarityPercentage}
-              />
-            ) : null}
+          <div className={vstack({
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '1',
+            width: '300px',
+            flex: '1',
+            position: 'relative',
+          })}>
+            {(isPlaying || scoreReaction !== null) && (
+              <>
+                <SimilarityBoard rate={progressRate} similarity={similarityPercentage} />
+                {scoreReaction && (
+                  <div
+                    className={css({
+                      position: 'absolute',
+                      top: '28%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      fontWeight: 'bold',
+                      fontSize: '7xl',
+                      color: 'black',
+                      animation: 'floatUpFade 1s forwards',
+                      animationDelay: '0.3s',
+                      pointerEvents: 'none',
+                      zIndex: 5,
+                    })}
+                  >+{scoreReaction}</div>
+                )}
+              </>
+            )}
           </div>
         </div>
+        {/* right column */}
         <div className={vstack({ gap: '4', height: '100%' })}>
-          <div
-            className={css({
-              display: 'inline-flex',
-              px: '8',
-              py: '2',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 'full',
-              border: '1px solid',
-              borderColor: 'white',
-              textStyle: '2xl',
-              fontWeight: 'bold',
-              color: 'white',
-              backdropFilter: 'auto',
-              backdropBlur: '2xl',
-              bgColor: 'rgba(0, 0, 0, 0.1)',
-            })}
-          >
-            {nickname}
-          </div>
-          <div
-            className={css({
-              flex: '1',
-              borderRadius: '2xl',
-              border: '1px solid',
-              borderColor: 'white',
-              width: '600px',
-              overflow: 'hidden',
-
-              bgColor: 'rgba(0, 0, 0, 0.1)',
-              backdropFilter: 'auto',
-              backdropBlur: 'md',
-            })}
-          >
-            <WebcamPlayer />
-            {/* <Player /> */}
-          </div>
+          <div className={css({
+            display: 'inline-flex',
+            px: '8',
+            py: '2',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 'full',
+            border: '1px solid',
+            borderColor: 'white',
+            textStyle: '2xl',
+            fontWeight: 'bold',
+            color: 'white',
+            backdropFilter: 'auto',
+            backdropBlur: '2xl',
+            bgColor: 'rgba(0, 0, 0, 0.1)',
+          })}>{nickname}</div>
+          <div className={css({
+            flex: '1',
+            borderRadius: '2xl',
+            border: '1px solid',
+            borderColor: 'white',
+            width: '600px',
+            overflow: 'hidden',
+            bgColor: 'rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'auto',
+            backdropBlur: 'md',
+          })}><WebcamPlayer /></div>
         </div>
       </div>
     </div>
