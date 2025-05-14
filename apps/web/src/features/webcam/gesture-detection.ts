@@ -1,53 +1,20 @@
 type PoseLandmark = {
-  x: number;  // X 좌표
-  y: number;  // Y 좌표
-  z: number;  // Z 좌표 (3D 위치)
+  x: number; // X 좌표
+  y: number; // Y 좌표
+  z: number; // Z 좌표 (3D 위치)
 };
 
 // 여러 랜드마크를 포함한 배열 정의
-type PoseLandmarks = PoseLandmark[]; 
+type PoseLandmarks = PoseLandmark[];
 
 // 제스처 결과 정의
 type GestureResults = {
-  landmarks: PoseLandmarks[];  // 여러 손의 랜드마크
-  handedness: { displayName: string }[][];  // 손의 종류 (왼손/오른손)
+  landmarks: PoseLandmarks[]; // 여러 손의 랜드마크
+  handedness: { displayName: string }[][]; // 손의 종류 (왼손/오른손)
 };
 
-import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
 import '../../styles.css';
 
-const vision = await FilesetResolver.forVisionTasks(
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-);
-
-// 제스처 인식
-export const gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
-  baseOptions: {
-    modelAssetPath: "https://storage.googleapis.com/mediapipe-tasks/gesture_recognizer/gesture_recognizer.task",
-  },
-  runningMode: "VIDEO",
-  numHands: 2,
-  minHandDetectionConfidence: 0.5,
-  minHandPresenceConfidence: 0.5,
-  minTrackingConfidence: 0.5,
-  cannedGesturesClassifierOptions: {
-    displayNamesLocale: "en",
-    maxResults: -1,
-    scoreThreshold: 0.0,
-    categoryAllowlist: ["Pointing_Up", "Thumb_Up", "Victory", "Open_Palm"],
-    categoryDenylist: [],
-  },
-  customGesturesClassifierOptions: {
-    displayNamesLocale: "en",
-    maxResults: -1,
-    scoreThreshold: 0.0,
-    categoryAllowlist: [],
-    categoryDenylist: [],
-  },
-});
-
-let focusTimer: ReturnType<typeof setTimeout> | null = null;
-let clickTimer: ReturnType<typeof setTimeout> | null = null;
 let currentTarget: HTMLElement | null = null;
 // 캔버스 초기화 변수
 let hasInitialized = false;
@@ -57,27 +24,30 @@ function initCanvas(canvas: HTMLCanvasElement) {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  window.addEventListener("resize", () => {
+  window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
 }
 
-export function detectGesture(gestureResults: GestureResults | null, canvasRef: React.RefObject<HTMLCanvasElement>) {
+export function detectGesture(
+  gestureResults: GestureResults | null,
+  canvasRef: React.RefObject<HTMLCanvasElement>,
+) {
   if (!gestureResults || !canvasRef?.current) return;
 
   const canvas = canvasRef.current;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
   if (!ctx) return;
 
   // result 페이지에서 한 번 더 캔버스 초기화
-  if (!hasInitialized && window.location.pathname !== "/result") {
+  if (!hasInitialized && window.location.pathname !== '/result') {
     initCanvas(canvas);
     hasInitialized = true;
   }
 
-  if (!hasInitializedResult && window.location.pathname === "/result") {
+  if (!hasInitializedResult && window.location.pathname === '/result') {
     initCanvas(canvas);
     hasInitializedResult = true;
   }
@@ -90,17 +60,17 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
 
-  gestureResults.landmarks.forEach((hand: PoseLandmarks, index: number) => {
+  gestureResults.landmarks.forEach((hand, index) => {
     const handType = gestureResults.handedness[index]?.[0]?.displayName;
 
     // 손 랜드마크 시각화
-    hand.forEach((point: any, index: number) => {
+    hand.forEach((point, index) => {
       // NaN 값이 있을 경우 해당 값을 건너뛰기
-      if (isNaN(point.x) || isNaN(point.y)) {
+      if (Number.isNaN(point.x) || Number.isNaN(point.y)) {
         return;
       }
 
-      if (index === 8 && handType === "Right") {
+      if (index === 8 && handType === 'Right') {
         const cursorX = (1 - point.x) * canvas.width;
         const cursorY = point.y * canvas.height;
 
@@ -110,15 +80,15 @@ export function detectGesture(gestureResults: GestureResults | null, canvasRef: 
       }
     });
   });
-   // Game 페이지일 때 커서 제거
-   if (window.location.pathname === '/game') {
-    removeFakeCursor();  // Game 페이지로 이동시 커서 제거
+  // Game 페이지일 때 커서 제거
+  if (window.location.pathname === '/game') {
+    removeFakeCursor(); // Game 페이지로 이동시 커서 제거
   }
 }
 
 // 커서가 클릭 가능한 요소 위에 1초 동안 있을 경우 포커스
 function handleCursorFocus(_x: number, _y: number) {
-  const cursorElement = document.querySelector(".fake-cursor");
+  const cursorElement = document.querySelector('.fake-cursor');
   if (!cursorElement) createFakeCursor();
 
   const cursorRect = cursorElement?.getBoundingClientRect();
@@ -126,43 +96,57 @@ function handleCursorFocus(_x: number, _y: number) {
 
   const elementsAtCursor = document.elementsFromPoint(
     cursorRect.left + cursorRect.width / 2,
-    cursorRect.top + cursorRect.height / 2
+    cursorRect.top + cursorRect.height / 2,
   );
 
-  const clickableElement = elementsAtCursor.find(el =>
-    el instanceof HTMLElement &&
-    (el.tagName === "BUTTON" || el.tagName === "A")
+  const clickableElement = elementsAtCursor.find(
+    (el) =>
+      el instanceof HTMLElement &&
+      (el.tagName === 'BUTTON' || el.tagName === 'A'),
   ) as HTMLElement | undefined;
 
-  if ((clickableElement !== currentTarget || !clickableElement) && currentTarget) {
-    clearTimeout(focusTimer!);
-    clearTimeout(clickTimer!);
+  let focusTimer: NodeJS.Timeout | null = null;
+  let clickTimer: NodeJS.Timeout | null = null;
+
+  if (
+    (clickableElement !== currentTarget || !clickableElement) &&
+    currentTarget
+  ) {
+    if (focusTimer) {
+      clearTimeout(focusTimer);
+    }
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+    }
 
     cancelPlayingAnimation(currentTarget);
     currentTarget = null;
   }
-  
 
   if (clickableElement instanceof HTMLElement) {
     if (clickableElement !== currentTarget) {
-      clearTimeout(focusTimer!);
-      clearTimeout(clickTimer!);
+      if (focusTimer) {
+        clearTimeout(focusTimer);
+      }
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+      }
       currentTarget = clickableElement;
 
       focusTimer = setTimeout(() => {
         clickableElement.focus();
-        clickableElement.classList.add("animate-background");
+        clickableElement.classList.add('animate-background');
 
         requestAnimationFrame(() => {
-          clickableElement.classList.add("playing");
+          clickableElement.classList.add('playing');
         });
-        
-        clickableElement.classList.remove("stopped");
+
+        clickableElement.classList.remove('stopped');
 
         clickTimer = setTimeout(() => {
           requestAnimationFrame(() => {
             const activeElement = document.activeElement;
-            const cursorElement = document.querySelector(".fake-cursor");
+            const cursorElement = document.querySelector('.fake-cursor');
             if (!cursorElement) return;
 
             const cursorRect = cursorElement.getBoundingClientRect();
@@ -190,15 +174,15 @@ function handleCursorFocus(_x: number, _y: number) {
 
 // 가짜 커서 생성 함수
 function createFakeCursor() {
-  const cursorElement = document.createElement("div");
-  cursorElement.classList.add("fake-cursor");
+  const cursorElement = document.createElement('div');
+  cursorElement.classList.add('fake-cursor');
 
-  document.body.appendChild(cursorElement);  // 화면에 커서를 추가
+  document.body.appendChild(cursorElement); // 화면에 커서를 추가
 }
 
 // moveCursorTo 함수: 커서 위치 이동
 function moveCursorTo(x: number, y: number) {
-  const cursorElement = document.querySelector(".fake-cursor");
+  const cursorElement = document.querySelector('.fake-cursor');
   if (cursorElement instanceof HTMLElement) {
     cursorElement.style.left = `${x - 25}px`;
     cursorElement.style.top = `${y - 25}px`;
@@ -214,7 +198,7 @@ function removeFakeCursor() {
 }
 
 function cancelPlayingAnimation(el: HTMLElement) {
-  el.classList.remove("playing");
+  el.classList.remove('playing');
   void el.offsetWidth; // 강제 리플로우로 브라우저 재인식
-  el.classList.add("stopped");
+  el.classList.add('stopped');
 }
