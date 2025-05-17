@@ -31,21 +31,24 @@ const shuffledAnswers = shuffleArray(answers);
 
 function Game() {
   const cosineSimilarityRef = useRef<number | null>(null);
-  const lastCalculationTimeRef = useRef<number>(0);
-  const highScoreStartTimeRef = useRef<number | null>(null);
-  const [progressRate, setProgressRate] = useState(0);
-  const [scoreReaction, setScoreReaction] = useState<number | null>(null);
-  const [lastPassedScore, setLastPassedScore] = useState<number | null>(null);
-  const [hasPassed, setHasPassed] = useState(false);
-  const webcam = useWebcam();
+  const lastCalculationTimeRef = useRef<number>(0); // 마지막으로 유사도를 계산한 시간. (타임스탬프)
+  const highScoreStartTimeRef = useRef<number | null>(null); // 점수가 일정 기준 이상(예: 85점 이상)을 유지하고 있는 시작 시점. (0.5초 이상 유지됐는지 판단하기 위해 사용)
+  const [progressRate, setProgressRate] = useState(0); // 현재 힌트 하나가 지나가는 동안의 진행률 (0~1). (진행 바 같은 UI에 사용됨)
+  const [scoreReaction, setScoreReaction] = useState<number | null>(null); // 성공했을 때 뜨는 +85 같은 UI 표시용 숫자. (표시 후 일정 시간 뒤에 null로 초기화됨)
+  const [lastPassedScore, setLastPassedScore] = useState<number | null>(null); // 마지막 라운드에서 성공한 점수를 저장. (UI에서 보여줄 점수로 사용됨)
+  const [hasPassed, setHasPassed] = useState(false); // 현재 라운드에서 성공했는지 여부. (성공 시 true로 설정됨 실패하면 false)
+  const webcam = useWebcam(); // 웹캠에서 가져온 포즈 데이터 (poseLandmarkerResult.landmarks[0])를 포함하는 사용자 정의 훅.
   const navigate = useNavigate();
   const { id, nickname } = useNickname();
-  const [state, send] = useMachine(gameMachine, { inspect });
-  const answer = shuffledAnswers[state.context.round];
-  const [hintTime, setHintTime] = useState<number | null>(null);
-  const hintDuration = 3000;
-  const isPlaying = state.matches('playing');
-  const isGameOver = state.matches('gameOver');
+  const [state, send] = useMachine(gameMachine, { inspect }); // xstate 상태 머신에서 현재 상태와 이벤트 전송 함수. 게임 흐름 제어용. (예: "pass", "next", "gameOver" 등)
+  const answer = shuffledAnswers[state.context.round]; // 현재 라운드의 정답 포즈 객체
+  const [hintTime, setHintTime] = useState<number | null>(null); // 현재 힌트(카드)가 시작된 시간. 3초 지나면 다음 힌트로 전환.
+  const hintDuration = 3000; // 힌트 하나당 보여지는 시간 (3초)
+  const isPlaying = state.matches('playing'); // 현재 게임이 "playing" 상태인지 여부.
+  const isGameOver = state.matches('gameOver'); // 게임이 "gameOver" 상태인지 여부.
+  const remainingTiles = state.context.hint.filter(v => !v).length;
+  const [score, setScore] = useState(0); // 현재 점수. (게임이 끝나면 서버에 전송됨)
+
 
   useEffect(() => {
     if (answer?.landmarks && webcam.poseLandmarkerResult?.landmarks[0]) {
@@ -78,7 +81,10 @@ function Game() {
               setHasPassed(true);
               send({ type: 'pass', score });
             }
+
+            setScore(score); // Update the score state
           } else {
+            setScore(score); // Update the score state
             // Reset the tracking if the score drops below 85
             highScoreStartTimeRef.current = null;
           }
@@ -145,6 +151,10 @@ function Game() {
       if (remainingTime <= 0) {
         setHintTime(Date.now());
 
+        // if (!hasPassed) {
+        //   setMissed(true); // 점수 통과 못 했으면 missed true 설정
+        // }
+
         setHasPassed(false);
         send({ type: 'next' });
       } else {
@@ -170,6 +180,16 @@ function Game() {
     }
   }, [lastPassedScore, send]);
 
+  useEffect(() => {
+    if (remainingTiles === 0 && score < 85) {
+      setScoreReaction(0);
+      setTimeout(() => {
+        setScoreReaction(null);
+        send({ type: 'next' });
+      }, 1000);
+    }
+  }, [remainingTiles, lastPassedScore, send]);
+  
   // Calculate similarity percentage value
   const similarityPercentage =
     cosineSimilarityRef.current !== null
@@ -260,7 +280,6 @@ function Game() {
                 transform: 'scaleX(-1)',
               })}
             />
-
             <Hint key={state.context.round} hint={state.context.hint} />
           </div>
         </div>
@@ -288,43 +307,25 @@ function Game() {
             {(isPlaying || scoreReaction !== null) && (
               <>
                 <SimilarityBoard rate={progressRate} similarity={similarityPercentage} />
-                {scoreReaction && (
-                  <div
-                    className={css({
-                      position: 'absolute',
-                      top: '28%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      fontWeight: 'bold',
-                      fontSize: '7xl',
-                      color: 'black',
-                      animation: 'floatUpFade 1s forwards',
-                      animationDelay: '0.3s',
-                      pointerEvents: 'none',
-                      zIndex: 5,
-                    })}
-                  >+{scoreReaction}</div>
-                )}
-
-                {!scoreReaction && (
-                      <div
-                        key="miss"
-                        className={css({
-                          position: 'absolute',
-                          top: '28%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          fontWeight: 'bold',
-                          fontSize: '6xl',
-                          color: '#FF6701',
-                          animation: 'floatUpFade 1s ease-out forwards',
-                          pointerEvents: 'none',
-                          zIndex: 5,
-                        })}
-                      >
-                        Miss
-                      </div>
-                  )}
+                {typeof scoreReaction === 'number' && (
+                <div
+                  className={css({
+                    position: 'absolute',
+                    top: '28%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    fontWeight: 'bold',
+                    fontSize: scoreReaction === 0 ? '6xl' : '7xl',
+                    color: scoreReaction === 0 ? '#FF6701' : 'black',
+                    animation: 'floatUpFade 1s forwards',
+                    animationDelay: '0.3s',
+                    pointerEvents: 'none',
+                    zIndex: 5,
+                  })}
+                >
+                  {scoreReaction === 0 ? 'Miss' : `+${scoreReaction}`}
+                </div>
+              )}
               </>
             )}
           </div>
