@@ -308,6 +308,7 @@ function Tutorial() {
                     style={{ width: `${progress}%` }} // Dynamic width based on progress state
                   />
                 </div> */}
+                </div> */}
                 <AnimatePresence initial={false} custom={direction}>
                   <motion.div
                     key={pageIndex} // Important for AnimatePresence to track the element
