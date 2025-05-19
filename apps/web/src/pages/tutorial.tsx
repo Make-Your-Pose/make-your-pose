@@ -74,20 +74,20 @@ const button = css({
   fontWeight: 'semibold',
 });
 
-const progressBarContainerStyle = css({
-  height: '8px',
-  backgroundColor: '#D9D9D9',
-  borderRadius: '4px',
-  overflow: 'hidden',
-  marginTop: '20px', // Add some space above the progress bar
-});
+// const progressBarContainerStyle = css({
+//   height: '8px',
+//   backgroundColor: '#D9D9D9',
+//   borderRadius: '4px',
+//   overflow: 'hidden',
+//   marginTop: '20px', // Add some space above the progress bar
+// });
 
-const progressBarStyle = css({
-  height: '100%',
-  backgroundColor: '#FF6600',
-  borderRadius: '4px',
-  transition: 'width 0.1s linear', // Smooth transition for width changes
-});
+// const progressBarStyle = css({
+//   height: '100%',
+//   backgroundColor: '#FF6600',
+//   borderRadius: '4px',
+//   transition: 'width 0.1s linear', // Smooth transition for width changes
+// });
 
 const pages = [
   {
@@ -367,6 +367,7 @@ function Tutorial() {
                 return (
                   <div
                     key={index}
+                    onClick={() => handlePaginationClick(index)}
                     style={{
                       width: isActive ? '150px' : '16px',
                       height: '16px',
