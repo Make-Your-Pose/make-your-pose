@@ -166,7 +166,7 @@ function handleCursorFocus(_x: number, _y: number) {
               currentTarget = null;
             }
           });
-        }, 3000);
+        }, 2000);
       }, 1000);
     }
   }

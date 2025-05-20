@@ -86,7 +86,7 @@ function Home() {
         >
           <div className={descriptionStyle}>포인터</div>
           <div className={css({width: "32px", height: "32px", backgroundColor: "#FF7E28", borderRadius: "999"})}></div>
-          <div className={descriptionStyle}>를 START 버튼 위에 3초간 위치 시키세요</div>
+          <div className={descriptionStyle}>를 START 버튼 위에 2초간 위치 시키세요</div>
         </div>
       </div>
     </div>
