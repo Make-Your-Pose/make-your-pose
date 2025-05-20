@@ -297,7 +297,7 @@ function Tutorial() {
               {/* Wrapper div to reserve space for animated content */}
               <div style={{ flex: 1, position: 'relative', width: '100%' }}>
                 {/* Progress Bar - Conditionally render or style based on mode if needed */}
-                <div
+                {/* <div
                   className={progressBarContainerStyle}
                   style={{
                     visibility: isManualMode ? 'hidden' : 'visible', // Hide progress bar in manual mode
@@ -307,8 +307,7 @@ function Tutorial() {
                     className={progressBarStyle}
                     style={{ width: `${progress}%` }} // Dynamic width based on progress state
                   />
-                </div>
-
+                </div> */}
                 <AnimatePresence initial={false} custom={direction}>
                   <motion.div
                     key={pageIndex} // Important for AnimatePresence to track the element
@@ -354,35 +353,48 @@ function Tutorial() {
               </div>
               {/* pagination */}
               <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: '20px',
-                  marginTop: 'auto', // Push pagination towards the bottom before the button
-                }}
-              >
-                {pages.map((_, index) => (
-                  <button
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '12px',
+                marginTop: '0px',
+                marginBottom: '50px',
+              }}
+            >
+              {pages.map((_, index) => {
+                const isActive = index === pageIndex;
+                return (
+                  <div
                     key={index}
-                    type="button"
-                    onClick={() => handlePaginationClick(index)} // Use the new handler
-                    className={css({
-                      // Use css function here
-                      width: '20px',
-                      height: '20px',
-                      borderRadius: '50%',
-                      backgroundColor:
-                        pageIndex === index ? '#FF6600' : '#D9D9D9', // Conditional background color
-                      border: 'none', // Remove default button border
-                      padding: 0, // Remove default button padding
-                      cursor: 'pointer', // Add pointer cursor
-                      outline: 'none', // Remove focus outline if desired
-                    })}
-                    aria-label={`Go to slide ${index + 1}`} // Accessibility improvement
-                  />
-                ))}
-              </div>
+                    style={{
+                      width: isActive ? '150px' : '16px',
+                      height: '16px',
+                      borderRadius: isActive ? '8px' : '50%',
+                      backgroundColor: '#D9D9D9',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      transition: 'width 0.3s ease',
+                    }}
+                  >
+                    {isActive && !isManualMode && (
+                      <div
+                        style={{
+                          width: `${progress}%`,
+                          height: '100%',
+                          backgroundColor: '#FF6600',
+                          borderRadius: '4px',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          transition: 'width 0.1s linear',
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
               <Link className={button} to="/lobby">
                 Skip
