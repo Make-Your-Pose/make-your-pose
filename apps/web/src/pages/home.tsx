@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { css } from "~styled-system/css";
 import { stack } from "~styled-system/patterns";
-import bg1 from "../images/bg-1.png";
+import bg1 from "../images/bg-stage-blur.jpg";
 
 const backgroundStyle = css({
   display: "flex",
@@ -13,28 +13,27 @@ const backgroundStyle = css({
   backgroundColor: "gray",
 });
 
-const titleStyle = css({
-  padding: "20px 100px",
-  marginBottom: "32px",
+const descriptionStyle = css({
+  color: "#ffffff",
   textStyle: "3xl",
-  fontWeight: "semibold",
-  lineHeight: "1.5",
-  letterSpacing: "0.5",
   textAlign: "center",
-  background: "linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.80) 13%, #FFF 45%, rgba(255, 255, 255, 0.80) 90%, rgba(255, 255, 255, 0.00) 100%)",
   justifyContent: "center",
 });
 
 const button = css({
   display: "flex",
-  width: "20vw",
+  width: "30vw",
   padding: "20px 24px",
   justifyContent: "center",
-  borderRadius: "12px",
+  borderRadius: "20px",
+  border: "4px solid transparent",
   backgroundColor: "#ffffff",
+  color: "#FF6701",
   marginTop: "30px",
-  fontSize: "3xl",
-  fontWeight: "semibold",
+  fontSize: "4xl",
+  fontFamily: "GmarketSansBold",
+  letterSpacing: "-0.02em",
+  boxShadow: "0px 0px 40px 0px rgba(255, 103, 1, 0.8)"
 });
 
 function Home() {
@@ -47,10 +46,10 @@ function Home() {
           height: "100vh",
           left: "0",
           top: "0",
-          bgSize: "cover",
+          bgSize: "auto",
           bgPosition: "center",
           filter: "auto",
-          blur: "3xl",
+          backgroundSize: "cover",
         })}
         style={{
           backgroundImage: `url(${bg1})`,
@@ -66,16 +65,29 @@ function Home() {
           paddingInline: "0rem",
         })}
       >
-        <div className={css({ textStyle: "9xl", color: "#fff", fontWeight: "semibold", marginBottom: "100px" })}>
+        <div className={css({ textStyle: "8xl", color: "#fff", fontFamily: "GmarketSansBold", letterSpacing: "-0.03em", marginBottom: "10vh" })}>
           Make Your Pose
         </div>
-        <div className={titleStyle}>오른쪽 검지 손가락을 들어  START 버튼 위에 위치 시키세요</div>
         <Link
           className={button}
           to="/tutorial"
         >
           START
         </Link>
+        <div
+         className={css({
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "40px",
+          gap: "2px",
+        })}
+        >
+          <div className={descriptionStyle}>포인터</div>
+          <div className={css({width: "32px", height: "32px", backgroundColor: "#FF7E28", borderRadius: "999"})}></div>
+          <div className={descriptionStyle}>를 START 버튼 위에 2초간 위치 시키세요</div>
+        </div>
       </div>
     </div>
   );
