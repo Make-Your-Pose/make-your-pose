@@ -7,6 +7,8 @@ import home from '../images/home.svg';
 import { motion } from 'motion/react';
 import CircleLineLeft from 'src/features/game/components/circle-line-left';
 import CircleLineRight from 'src/features/game/components/circle-line-right';
+import { useEffect, useRef } from 'react';
+import { playSound } from '../utils/playSound';
 
 const backgroundStyle = css({
   display: 'flex',
@@ -68,6 +70,29 @@ const itemVariants = {
 function Lobby() {
   // Convert Link to a motion component
   const MotionLink = motion(Link);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_lobby.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -141,14 +166,20 @@ function Lobby() {
             initial="hidden"
             animate="visible"
           >
-            <MotionLink // Use MotionLink
-              to="/game?category=sports" // Pass category
+            <MotionLink
+              to="/game?category=sports"
               className={categoryCard}
               style={{
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
-              variants={itemVariants} // Apply item variants
-              whileFocus={{ scale: 1.05 }} // Add focus effect
+              variants={itemVariants}
+              whileFocus={{
+                scale: 1.05,
+                transition: { duration: 0.2 },
+                // Play navigation sound on focus
+                onAnimationStart: () => playSound('/sounds/sfx_cat_nav.mp3'),
+              }}
+              onClick={() => playSound('/sounds/sfx_cat_select.mp3')}
             >
               <div className={categoryName}>스포츠</div>
               <div className={categoryNameEng}>Sports</div>
@@ -162,7 +193,12 @@ function Lobby() {
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
               variants={itemVariants} // Apply item variants
-              whileFocus={{ scale: 1.05 }} // Add focus effect
+              whileFocus={{
+                scale: 1.05,
+                transition: { duration: 0.2 },
+                onAnimationStart: () => playSound('/sounds/sfx_cat_nav.mp3'),
+              }}
+              onClick={() => playSound('/sounds/sfx_cat_select.mp3')}
             >
               <div className={categoryName}>요가</div>
               <div className={categoryNameEng}>Yoga</div>

@@ -16,6 +16,7 @@ import home from '../images/home.svg';
 import { logger } from 'src/utils/logger';
 import type { AnswerData } from 'src/data/types';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
+import { playSound } from '../utils/playSound';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -67,6 +68,53 @@ function Game() {
   const isGameOver = state.matches('gameOver'); // 게임이 "gameOver" 상태인지 여부.
   const remainingTiles = state.context.hint.filter((v) => !v).length;
   const [score, setScore] = useState(0); // 현재 점수. (게임이 끝나면 서버에 전송됨)
+
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const prevHintRef = useRef<boolean[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_ingame.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Play unveil sound when a new hint is unveiled or time runs out
+    if (isPlaying && state.context.hint) {
+      const prev = prevHintRef.current;
+      const curr = state.context.hint;
+      if (
+        prev.length > 0 &&
+        curr.filter(Boolean).length > prev.filter(Boolean).length
+      ) {
+        playSound('/sounds/sfx_ingame_unveil.mp3');
+      }
+      prevHintRef.current = [...curr];
+    }
+  }, [isPlaying, state.context.hint]);
+
+  useEffect(() => {
+    // Play correct sound when player gets the correct pose
+    if (scoreReaction !== null && scoreReaction > 0) {
+      playSound('/sounds/sfx_ingame_correct.mp3');
+    }
+  }, [scoreReaction]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);

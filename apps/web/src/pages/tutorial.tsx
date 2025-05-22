@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'; // Import useRef
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router';
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
@@ -11,6 +11,7 @@ import bg1 from '../images/bg-stage-dimmed.jpg';
 import home from '../images/home.svg';
 import CircleLineLeft from 'src/features/game/components/circle-line-left';
 import CircleLineRight from 'src/features/game/components/circle-line-right';
+import { playSound } from '../utils/playSound';
 
 const backgroundStyle = css({
   display: 'flex',
@@ -156,6 +157,7 @@ function Tutorial() {
   const [isManualMode, setIsManualMode] = useState(false); // State to track manual interaction
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref to store progress interval ID
   const slideIntervalRef = useRef<NodeJS.Timeout | null>(null); // Ref to store slide change interval ID
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
 
   const clearIntervals = () => {
     if (slideIntervalRef.current) clearInterval(slideIntervalRef.current);
@@ -220,14 +222,36 @@ function Tutorial() {
     // Rerun effect when pageIndex changes OR when mode changes
   }, [pageIndex, isManualMode]);
 
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_lobby.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
+
   const handlePaginationClick = (index: number) => {
     if (!isManualMode) {
-      setIsManualMode(true); // Enter manual mode on first click
+      setIsManualMode(true);
     }
-    clearIntervals(); // Stop automatic sliding immediately
+    clearIntervals();
     setDirection(index > pageIndex ? 1 : -1);
     setPageIndex(index);
-    // No need to call startIntervals here, the useEffect for pageIndex/isManualMode handles it
+    playSound('/sounds/sfx_cat_nav.mp3');
   };
 
   return (
@@ -275,10 +299,17 @@ function Tutorial() {
             paddingInline: '0rem',
           })}
         >
-          <div className={css({ display: 'flex', gap: '32px', marginBottom: '5vh', alignItems: 'center' })}>
-            <CircleLineLeft/>
+          <div
+            className={css({
+              display: 'flex',
+              gap: '32px',
+              marginBottom: '5vh',
+              alignItems: 'center',
+            })}
+          >
+            <CircleLineLeft />
             <div className={titleStyle}>게임 설명</div>
-            <CircleLineRight/>
+            <CircleLineRight />
           </div>
           {/* Add a button to enter manual mode */}
           {/* Card */}
@@ -353,49 +384,49 @@ function Tutorial() {
               </div>
               {/* pagination */}
               <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '12px',
-                marginTop: '0px',
-                marginBottom: '50px',
-              }}
-            >
-              {pages.map((_, index) => {
-                const isActive = index === pageIndex;
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handlePaginationClick(index)}
-                    style={{
-                      width: isActive ? '150px' : '16px',
-                      height: '16px',
-                      borderRadius: isActive ? '8px' : '50%',
-                      backgroundColor: '#D9D9D9',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      transition: 'width 0.3s ease',
-                    }}
-                  >
-                    {isActive && !isManualMode && (
-                      <div
-                        style={{
-                          width: `${progress}%`,
-                          height: '100%',
-                          backgroundColor: '#FF6600',
-                          borderRadius: '4px',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          transition: 'width 0.1s linear',
-                        }}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginTop: '0px',
+                  marginBottom: '50px',
+                }}
+              >
+                {pages.map((_, index) => {
+                  const isActive = index === pageIndex;
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => handlePaginationClick(index)}
+                      style={{
+                        width: isActive ? '150px' : '16px',
+                        height: '16px',
+                        borderRadius: isActive ? '8px' : '50%',
+                        backgroundColor: '#D9D9D9',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        transition: 'width 0.3s ease',
+                      }}
+                    >
+                      {isActive && !isManualMode && (
+                        <div
+                          style={{
+                            width: `${progress}%`,
+                            height: '100%',
+                            backgroundColor: '#FF6600',
+                            borderRadius: '4px',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            transition: 'width 0.1s linear',
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
               <Link className={button} to="/lobby">
                 Skip

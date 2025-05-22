@@ -7,6 +7,7 @@ import home from '../images/home.svg';
 import { motion } from 'motion/react';
 import { logger } from 'src/utils/logger';
 import { useNickname } from 'src/features/nickname/context';
+import { playSound } from '../utils/playSound';
 
 // Type for the data items
 type RankingItem = {
@@ -68,7 +69,6 @@ type RankingItem = {
 //   },
 // ];
 
-
 const button = css({
   display: 'flex',
   width: '100%',
@@ -89,6 +89,7 @@ function Result() {
   const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const meItemRef = useRef<HTMLDivElement>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
 
   const { id, regenerateNickname } = useNickname();
 
@@ -132,6 +133,28 @@ function Result() {
       });
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_result.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div>
@@ -199,7 +222,12 @@ function Result() {
               })}
             >
               <div
-                className={css({ color: 'white', p: '4', textAlign: 'center', fontSize: '2xl' })}
+                className={css({
+                  color: 'white',
+                  p: '4',
+                  textAlign: 'center',
+                  fontSize: '2xl',
+                })}
               >
                 Loading data...
               </div>
@@ -307,7 +335,13 @@ function Result() {
               })}
             </motion.div>
           )}
-          <Link className={button} to="/" onClick={() => regenerateNickname()}>
+          <Link
+            className={button}
+            to="/"
+            onClick={() => {
+              regenerateNickname();
+            }}
+          >
             <img src={home} style={{ width: '40px' }} />
             홈으로
           </Link>

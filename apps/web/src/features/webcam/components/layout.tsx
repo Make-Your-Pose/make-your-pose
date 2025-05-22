@@ -102,7 +102,6 @@ export function GlobalLayout() {
 
   return (
     <WebcamContext.Provider value={{ stream, poseLandmarkerResult }}>
-      {/* GestureContext.Provider 제거 */}
       <NicknameProvider>
         <Outlet />
       </NicknameProvider>
