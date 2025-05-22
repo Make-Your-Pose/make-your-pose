@@ -1,7 +1,7 @@
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-stage-dimmed.jpg';
-import category1 from '../images/bg-1.png';
+import category1 from '../images/bg-1.png'; // Assuming bg-1.png can be used for yoga too, or a new bg-2.png could be imported
 import { Link } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
@@ -25,7 +25,7 @@ const titleStyle = css({
 const categoryCard = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: '20px',
+  gap: '30px',
   alignItems: 'baseline',
   // width: '49%', // Remove or adjust width
   width: '100%', // Let the grid control the width
@@ -114,16 +114,25 @@ function Lobby() {
             marginTop: '70px',
           })}
         >
-          <div className={css({ display: 'flex', gap: '32px', marginBottom: '5vh', alignItems: 'center' })}>
-            <CircleLineLeft/>
-              <div className={titleStyle}>플레이 하고 싶은 카테고리를 선택하세요</div>
-            <CircleLineRight/>
+          <div
+            className={css({
+              display: 'flex',
+              gap: '32px',
+              marginBottom: '5vh',
+              alignItems: 'center',
+            })}
+          >
+            <CircleLineLeft />
+            <div className={titleStyle}>
+              플레이 하고 싶은 카테고리를 선택하세요
+            </div>
+            <CircleLineRight />
           </div>
           <motion.div // Wrap container with motion.div
             className={css({
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '20px',
+              gap: '32px',
               width: '80%',
               margin: '0 auto',
               color: 'white',
@@ -133,49 +142,51 @@ function Lobby() {
             animate="visible"
           >
             <MotionLink // Use MotionLink
-              to="/game"
+              to="/game?category=sports" // Pass category
               className={categoryCard}
               style={{
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
               variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              whileFocus={{ scale: 1.05 }} // Add focus effect
             >
               <div className={categoryName}>스포츠</div>
               <div className={categoryNameEng}>Sports</div>
             </MotionLink>
 
-            <motion.div // Wrap div with motion.div
+            <MotionLink // Use MotionLink for Yoga
+              to="/game?category=yoga" // Pass category
+              className={categoryCard}
+              style={{
+                // Example: Green gradient for Yoga, using category1 image
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
+              variants={itemVariants} // Apply item variants
+              whileFocus={{ scale: 1.05 }} // Add focus effect
+            >
+              <div className={categoryName}>요가</div>
+              <div className={categoryNameEng}>Yoga</div>
+            </MotionLink>
+
+            <motion.div // Wrap div with motion.div - Placeholder or future category
               className={categoryCard}
               style={{
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
               variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              whileFocus={{ scale: 1.05 }} // Add focus effect
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
             </motion.div>
 
-            <motion.div // Wrap div with motion.div
+            <motion.div // Wrap div with motion.div - Placeholder or future category
               className={categoryCard}
               style={{
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
               variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
-            >
-              <div className={categoryName}>최종 전시 공개</div>
-              <div className={categoryNameEng} />
-            </motion.div>
-
-            <motion.div // Wrap div with motion.div
-              className={categoryCard}
-              style={{
-                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
-              }}
-              variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              whileFocus={{ scale: 1.05 }} // Add focus effect
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
