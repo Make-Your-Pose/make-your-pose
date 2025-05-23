@@ -7,6 +7,7 @@ import home from '../images/home.svg';
 import { motion } from 'motion/react';
 import { logger } from 'src/utils/logger';
 import { useNickname } from 'src/features/nickname/context';
+import { playSound } from '../utils/playSound';
 
 // Type for the data items
 type RankingItem = {
@@ -14,6 +15,59 @@ type RankingItem = {
   Username: string;
   Score: number;
 };
+
+// const dummyData: RankingItem[] = [
+//   {
+//     ID: '1',
+//     Username: 'PlayerOne',
+//     Score: 1500,
+//   },
+//   {
+//     ID: '2',
+//     Username: 'PlayerTwo',
+//     Score: 1400,
+//   },
+//   {
+//     ID: '3',
+//     Username: 'PlayerThree',
+//     Score: 1300,
+//   },
+//   {
+//     ID: '4',
+//     Username: 'PlayerFour',
+//     Score: 1200,
+//   },
+//   {
+//     ID: '5',
+//     Username: 'PlayerFive',
+//     Score: 1100,
+//   },
+//   {
+//     ID: '6',
+//     Username: 'PlayerSix',
+//     Score: 1000,
+//   },
+//   {
+//     ID: '7',
+//     Username: 'PlayerSeven',
+//     Score: 950,
+//   },
+//   {
+//     ID: '8',
+//     Username: 'PlayerEight',
+//     Score: 900,
+//   },
+//   {
+//     ID: '9',
+//     Username: 'PlayerNine',
+//     Score: 850,
+//   },
+//   {
+//     ID: '10',
+//     Username: 'PlayerTen',
+//     Score: 800,
+//   },
+// ];
 
 const button = css({
   display: 'flex',
@@ -35,6 +89,7 @@ function Result() {
   const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const meItemRef = useRef<HTMLDivElement>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
 
   const { id, regenerateNickname } = useNickname();
 
@@ -46,6 +101,19 @@ function Result() {
           throw new Error('Failed to fetch data');
         }
         const fetchedData = await response.json();
+
+        const lastScore = sessionStorage.getItem('lastGameScore');
+        const lastUsername = sessionStorage.getItem('lastGameUsername');
+
+        // 사용자가 기록한 점수가 있을 경우, 리스트에 삽입
+        if (lastScore && lastUsername) {
+          const myScoreItem: RankingItem = {
+            ID: 'me',
+            Username: lastUsername,
+            Score: Number(lastScore),
+          };
+          setData([myScoreItem, ...fetchedData]); // 새 배열 생성
+        }
         setData(fetchedData);
       } catch (error) {
         logger.error('Error fetching ranking data:', error);
@@ -65,6 +133,28 @@ function Result() {
       });
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_result.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div>
@@ -132,7 +222,12 @@ function Result() {
               })}
             >
               <div
-                className={css({ color: 'white', p: '4', textAlign: 'center' })}
+                className={css({
+                  color: 'white',
+                  p: '4',
+                  textAlign: 'center',
+                  fontSize: '2xl',
+                })}
               >
                 Loading data...
               </div>
@@ -240,7 +335,13 @@ function Result() {
               })}
             </motion.div>
           )}
-          <Link className={button} to="/" onClick={() => regenerateNickname()}>
+          <Link
+            className={button}
+            to="/"
+            onClick={() => {
+              regenerateNickname();
+            }}
+          >
             <img src={home} style={{ width: '40px' }} />
             홈으로
           </Link>

@@ -182,7 +182,7 @@ function handleCursorFocus(_x: number, _y: number) {
               currentTarget = null;
             }
           });
-        }, 3000);
+        }, 2000);
       }, 1000);
     }
   }
@@ -208,8 +208,8 @@ function moveCursorTo(x: number, y: number) {
 // 가짜 커서 제거 함수
 function removeFakeCursor() {
   const cursorElement = document.querySelector(".fake-cursor");
-  if (cursorElement) {
-    cursorElement.remove();
+  if (cursorElement instanceof HTMLElement) {
+    cursorElement.classList.add("remove-fake-cursor");
   }
 }
 

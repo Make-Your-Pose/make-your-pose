@@ -1,9 +1,14 @@
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
-import bg1 from '../images/bg-1.png';
+import bg1 from '../images/bg-stage-dimmed.jpg';
+import category1 from '../images/bg-1.png'; // Assuming bg-1.png can be used for yoga too, or a new bg-2.png could be imported
 import { Link } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
+import CircleLineLeft from 'src/features/game/components/circle-line-left';
+import CircleLineRight from 'src/features/game/components/circle-line-right';
+import { useEffect, useRef } from 'react';
+import { playSound } from '../utils/playSound';
 
 const backgroundStyle = css({
   display: 'flex',
@@ -12,28 +17,24 @@ const backgroundStyle = css({
 });
 
 const titleStyle = css({
-  justifyContent: 'center',
-  textAlign: 'center',
-  width: '40%',
-  padding: '20px 0',
-  marginBottom: '32px',
-  textStyle: '3xl',
+  textStyle: '4xl',
   fontWeight: 'semibold',
-  background:
-    'linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.80) 13%, #FFF 45%, rgba(255, 255, 255, 0.80) 90%, rgba(255, 255, 255, 0.00) 100%)',
+  textAlign: 'center',
+  justifyContent: 'center',
+  color: '#FFFFFF',
 });
 
 const categoryCard = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: '20px',
+  gap: '30px',
   alignItems: 'baseline',
   // width: '49%', // Remove or adjust width
   width: '100%', // Let the grid control the width
   height: '36.6vh',
   bgSize: 'cover',
   bgPosition: 'center',
-  borderRadius: '2xl',
+  borderRadius: '24px',
   padding: '32px',
 });
 
@@ -69,6 +70,29 @@ const itemVariants = {
 function Lobby() {
   // Convert Link to a motion component
   const MotionLink = motion(Link);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    playSound('/sounds/bgm_lobby.mp3').then((audio) => {
+      if (!isMounted) {
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      audio.loop = true;
+      audio.play();
+      bgmRef.current = audio;
+    });
+    return () => {
+      isMounted = false;
+      if (bgmRef.current) {
+        bgmRef.current.pause();
+        bgmRef.current.currentTime = 0;
+        bgmRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -79,7 +103,7 @@ function Lobby() {
           bottom: '70px',
           right: '50px',
           padding: '16px 20px',
-          borderRadius: '12px',
+          borderRadius: '999px',
           backgroundColor: '#ffffff',
           boxShadow: 'md',
           zIndex: 10,
@@ -99,7 +123,6 @@ function Lobby() {
             bgSize: 'cover',
             bgPosition: 'center',
             filter: 'auto',
-            blur: '3xl',
           })}
           style={{
             backgroundImage: `url(${bg1})`,
@@ -116,14 +139,25 @@ function Lobby() {
             marginTop: '70px',
           })}
         >
-          <div className={titleStyle}>
-            플레이 하고 싶은 카테고리를 선택하세요
+          <div
+            className={css({
+              display: 'flex',
+              gap: '32px',
+              marginBottom: '5vh',
+              alignItems: 'center',
+            })}
+          >
+            <CircleLineLeft />
+            <div className={titleStyle}>
+              플레이 하고 싶은 카테고리를 선택하세요
+            </div>
+            <CircleLineRight />
           </div>
           <motion.div // Wrap container with motion.div
             className={css({
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '20px',
+              gap: '32px',
               width: '80%',
               margin: '0 auto',
               color: 'white',
@@ -132,44 +166,63 @@ function Lobby() {
             initial="hidden"
             animate="visible"
           >
-            <MotionLink // Use MotionLink
-              to="/game"
+            <MotionLink
+              to="/game?category=sports"
               className={categoryCard}
               style={{
-                backgroundImage: `linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.0)), url(${bg1})`,
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
               }}
-              variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              variants={itemVariants}
+              whileFocus={{
+                scale: 1.05,
+                transition: { duration: 0.2 },
+                // Play navigation sound on focus
+                onAnimationStart: () => playSound('/sounds/sfx_cat_nav.mp3'),
+              }}
+              onClick={() => playSound('/sounds/sfx_cat_select.mp3')}
             >
               <div className={categoryName}>스포츠</div>
               <div className={categoryNameEng}>Sports</div>
             </MotionLink>
 
-            <motion.div // Wrap div with motion.div
+            <MotionLink // Use MotionLink for Yoga
+              to="/game?category=yoga" // Pass category
               className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
+              style={{
+                // Example: Green gradient for Yoga, using category1 image
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
               variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              whileFocus={{
+                scale: 1.05,
+                transition: { duration: 0.2 },
+                onAnimationStart: () => playSound('/sounds/sfx_cat_nav.mp3'),
+              }}
+              onClick={() => playSound('/sounds/sfx_cat_select.mp3')}
+            >
+              <div className={categoryName}>요가</div>
+              <div className={categoryNameEng}>Yoga</div>
+            </MotionLink>
+
+            <motion.div // Wrap div with motion.div - Placeholder or future category
+              className={categoryCard}
+              style={{
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
+              variants={itemVariants} // Apply item variants
+              whileFocus={{ scale: 1.05 }} // Add focus effect
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
             </motion.div>
 
-            <motion.div // Wrap div with motion.div
+            <motion.div // Wrap div with motion.div - Placeholder or future category
               className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
+              style={{
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+              }}
               variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
-            >
-              <div className={categoryName}>최종 전시 공개</div>
-              <div className={categoryNameEng} />
-            </motion.div>
-
-            <motion.div // Wrap div with motion.div
-              className={categoryCard}
-              style={{ backgroundColor: '#828282' }}
-              variants={itemVariants} // Apply item variants
-              whileHover={{ scale: 1.05 }} // Add hover effect
+              whileFocus={{ scale: 1.05 }} // Add focus effect
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
