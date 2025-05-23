@@ -268,7 +268,7 @@ function Result() {
                       padding: '4',
                       borderBottom: '1px solid',
                       borderColor: 'rgba(255, 255, 255, 0.3)',
-                      fontSize: 'lg',
+                      fontSize: '2xl',
                       position: 'relative',
                       alignItems: 'center',
                     })}
