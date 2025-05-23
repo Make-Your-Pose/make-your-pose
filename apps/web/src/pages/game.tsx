@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { css } from '~styled-system/css';
 import { hstack, vstack } from '~styled-system/patterns';
-import bg1 from '../images/bg-1.png';
 import { useMachine } from '@xstate/react';
 import { gameMachine } from 'src/features/game/machine';
 import { Hint } from 'src/features/game/components/hint';
@@ -340,7 +339,7 @@ function Game() {
           bgSize: 'cover',
           bgPosition: 'center',
         })}
-        style={{ backgroundImage: `url(${bg1})` }}
+        style={{ backgroundImage: `url("/bg-images/${category}.webp")` }}
       />
       <div
         className={hstack({

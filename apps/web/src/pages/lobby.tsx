@@ -1,7 +1,6 @@
 import { css } from '~styled-system/css';
 import { stack } from '~styled-system/patterns';
 import bg1 from '../images/bg-stage-dimmed.jpg';
-import category1 from '../images/bg-1.png'; // Assuming bg-1.png can be used for yoga too, or a new bg-2.png could be imported
 import { Link } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
@@ -170,7 +169,7 @@ function Lobby() {
               to="/game?category=sports"
               className={categoryCard}
               style={{
-                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url("/bg-images/sports.webp")`,
               }}
               variants={itemVariants}
               whileFocus={{
@@ -190,7 +189,7 @@ function Lobby() {
               className={categoryCard}
               style={{
                 // Example: Green gradient for Yoga, using category1 image
-                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
+                backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url("/bg-images/yoga.webp")`,
               }}
               variants={itemVariants} // Apply item variants
               whileFocus={{
@@ -204,6 +203,7 @@ function Lobby() {
               <div className={categoryNameEng}>Yoga</div>
             </MotionLink>
 
+            {/* 
             <motion.div // Wrap div with motion.div - Placeholder or future category
               className={categoryCard}
               style={{
@@ -214,9 +214,9 @@ function Lobby() {
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
-            </motion.div>
+            </motion.div> */}
 
-            <motion.div // Wrap div with motion.div - Placeholder or future category
+            {/* <motion.div // Wrap div with motion.div - Placeholder or future category
               className={categoryCard}
               style={{
                 backgroundImage: `linear-gradient(1deg, rgba(255, 103, 1, 0.00) 0.63%, rgba(255, 103, 1, 0.05) 60%, #FF6701 84.65%), url(${category1})`,
@@ -226,7 +226,7 @@ function Lobby() {
             >
               <div className={categoryName}>최종 전시 공개</div>
               <div className={categoryNameEng} />
-            </motion.div>
+            </motion.div> */}
           </motion.div>
         </div>
       </div>
