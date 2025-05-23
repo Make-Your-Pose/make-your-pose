@@ -224,7 +224,7 @@ function Tutorial() {
 
   useEffect(() => {
     let isMounted = true;
-    playSound('/sounds/bgm_lobby.mp3').then((audio) => {
+    playSound('/sounds/bgm_home.mp3').then((audio) => {
       if (!isMounted) {
         audio.pause();
         audio.currentTime = 0;
