@@ -17,7 +17,7 @@ const backgroundStyle = css({
 
 const descriptionStyle = css({
   color: '#ffffff',
-  textStyle: '3xl',
+  textStyle: '4xl',
   textAlign: 'center',
   justifyContent: 'center',
 });
@@ -32,7 +32,7 @@ const button = css({
   backgroundColor: '#ffffff',
   color: '#FF6701',
   marginTop: '30px',
-  fontSize: '4xl',
+  fontSize: '5xl',
   fontFamily: 'GmarketSansBold',
   letterSpacing: '-0.02em',
   boxShadow: '0px 0px 40px 0px rgba(255, 103, 1, 0.8)',
@@ -93,11 +93,11 @@ function Home() {
       >
         <div
           className={css({
-            textStyle: '8xl',
+            textStyle: '9xl',
             color: '#fff',
             fontFamily: 'GmarketSansBold',
             letterSpacing: '-0.03em',
-            marginBottom: '10vh',
+            marginBottom: '11vh',
           })}
         >
           Make Your Pose
