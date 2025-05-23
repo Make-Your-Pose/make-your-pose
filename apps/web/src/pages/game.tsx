@@ -69,7 +69,6 @@ function Game() {
   const [score, setScore] = useState(0); // 현재 점수. (게임이 끝나면 서버에 전송됨)
 
   const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const prevHintRef = useRef<boolean[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -92,28 +91,6 @@ function Game() {
       }
     };
   }, []);
-
-  useEffect(() => {
-    // Play unveil sound when a new hint is unveiled or time runs out
-    if (isPlaying && state.context.hint) {
-      const prev = prevHintRef.current;
-      const curr = state.context.hint;
-      if (
-        prev.length > 0 &&
-        curr.filter(Boolean).length > prev.filter(Boolean).length
-      ) {
-        playSound('/sounds/sfx_ingame_unveil.mp3');
-      }
-      prevHintRef.current = [...curr];
-    }
-  }, [isPlaying, state.context.hint]);
-
-  useEffect(() => {
-    // Play correct sound when player gets the correct pose
-    if (scoreReaction !== null && scoreReaction > 0) {
-      playSound('/sounds/sfx_ingame_correct.mp3');
-    }
-  }, [scoreReaction]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);

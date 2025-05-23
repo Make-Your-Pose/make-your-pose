@@ -1,3 +1,4 @@
+import { playSound } from 'src/utils/playSound';
 import { assign, setup } from 'xstate';
 
 export const gameMachine = setup({
@@ -78,31 +79,37 @@ export const gameMachine = setup({
       },
     },
     playing: {
-      entry: ['nextHint'],
+      entry: ['nextHint', () => playSound('/sounds/sfx_ingame_unveil.mp3')],
       on: {
         pass: {
           target: 'answer',
-          actions: assign({
-            score: ({ context, event }) => {
-              const { score } = event;
-              const baseScore = score;
-              const hintBonus =
-                (8 - context.hint.filter((hint) => hint).length) * 5;
-              const comboBonus = context.comboCount * 10;
+          actions: [
+            assign({
+              score: ({ context, event }) => {
+                const { score } = event;
+                const baseScore = score;
+                const hintBonus =
+                  (8 - context.hint.filter((hint) => hint).length) * 5;
+                const comboBonus = context.comboCount * 10;
 
-              const newScore = baseScore + hintBonus + comboBonus;
-              const totalScore = context.score + newScore;
+                const newScore = baseScore + hintBonus + comboBonus;
+                const totalScore = context.score + newScore;
 
-              return totalScore;
-            },
-            comboCount: ({ context }) => context.comboCount + 1,
-          }),
+                return totalScore;
+              },
+              comboCount: ({ context }) => context.comboCount + 1,
+            }),
+            () => playSound('/sounds/sfx_ingame_correct.mp3'),
+          ],
         },
         fail: {
           target: 'wrong',
-          actions: assign({
-            comboCount: () => 0,
-          }),
+          actions: [
+            assign({
+              comboCount: () => 0,
+            }),
+            () => playSound('/sounds/miss.mp3'),
+          ],
         },
         next: [
           {
@@ -110,7 +117,10 @@ export const gameMachine = setup({
             target: 'wrong',
           },
           {
-            actions: ['nextHint'],
+            actions: [
+              'nextHint',
+              () => playSound('/sounds/sfx_ingame_unveil.mp3'),
+            ],
           },
         ],
       },
