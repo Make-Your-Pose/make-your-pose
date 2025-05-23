@@ -15,31 +15,19 @@ type GestureResults = {
 
 import '../../styles.css';
 
-// 전역 변수 관리
 let currentTarget: HTMLElement | null = null;
+// 캔버스 초기화 변수
 let hasInitialized = false;
 let hasInitializedResult = false;
-let focusTimer: NodeJS.Timeout | null = null;
-let clickTimer: NodeJS.Timeout | null = null;
-let cachedCursorElement: HTMLElement | null = null;
-let resizeListener: (() => void) | null = null;
 
 function initCanvas(canvas: HTMLCanvasElement) {
-  // 이전 이벤트 리스너 제거
-  if (resizeListener) {
-    window.removeEventListener('resize', resizeListener);
-  }
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // 새 리스너 추가 및 참조 저장
-  resizeListener = () => {
+  window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-  };
-
-  window.addEventListener('resize', resizeListener);
+  });
 }
 
 export function detectGesture(
@@ -53,19 +41,15 @@ export function detectGesture(
 
   if (!ctx) return;
 
-  // 현재 경로에 따라 한 번만 초기화
-  const isResultPage = window.location.pathname === '/result';
-
-  if (
-    (!hasInitialized && !isResultPage) ||
-    (!hasInitializedResult && isResultPage)
-  ) {
+  // result 페이지에서 한 번 더 캔버스 초기화
+  if (!hasInitialized && window.location.pathname !== '/result') {
     initCanvas(canvas);
-    if (isResultPage) {
-      hasInitializedResult = true;
-    } else {
-      hasInitialized = true;
-    }
+    hasInitialized = true;
+  }
+
+  if (!hasInitializedResult && window.location.pathname === '/result') {
+    initCanvas(canvas);
+    hasInitializedResult = true;
   }
 
   // 매 프레임 렌더링용 clearRect만 실행
@@ -76,62 +60,43 @@ export function detectGesture(
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
 
-  // 게임 페이지일 때는 제스처 감지를 최소화
-  if (window.location.pathname === '/game') {
-    removeFakeCursor();
-    ctx.restore();
-    return;
-  }
+  gestureResults.landmarks.forEach((hand, index) => {
+    const handType = gestureResults.handedness[index]?.[0]?.displayName;
 
-  let rightIndexFingerPosition: { x: number; y: number } | null = null;
-
-  // 필요한 데이터만 처리
-  for (let i = 0; i < gestureResults.landmarks.length; i++) {
-    const hand = gestureResults.landmarks[i];
-    const handType = gestureResults.handedness[i]?.[0]?.displayName;
-
-    // 오른손 검지 손가락(인덱스 8)만 찾기
-    if (handType === 'Right') {
-      const point = hand[8];
-      if (!Number.isNaN(point.x) && !Number.isNaN(point.y)) {
-        rightIndexFingerPosition = {
-          x: (1 - point.x) * canvas.width,
-          y: point.y * canvas.height,
-        };
-        break; // 오른손 검지를 찾았으면 더 이상 루프 불필요
+    // 손 랜드마크 시각화
+    hand.forEach((point, index) => {
+      // NaN 값이 있을 경우 해당 값을 건너뛰기
+      if (Number.isNaN(point.x) || Number.isNaN(point.y)) {
+        return;
       }
-    }
-  }
 
-  ctx.restore();
+      if (index === 8 && handType === 'Right') {
+        const cursorX = (1 - point.x) * canvas.width;
+        const cursorY = point.y * canvas.height;
 
-  // 오른손 검지 위치가 있을 때만 커서 처리
-  if (rightIndexFingerPosition) {
-    moveCursorTo(rightIndexFingerPosition.x, rightIndexFingerPosition.y);
-    handleCursorFocus(rightIndexFingerPosition.x, rightIndexFingerPosition.y);
+        // 커서 위치를 손끝 위치로 이동
+        moveCursorTo(cursorX, cursorY);
+        handleCursorFocus(cursorX, cursorY);
+      }
+    });
+  });
+  // Game 페이지일 때 커서 제거
+  if (window.location.pathname === '/game') {
+    removeFakeCursor(); // Game 페이지로 이동시 커서 제거
   }
 }
 
 // 커서가 클릭 가능한 요소 위에 1초 동안 있을 경우 포커스
 function handleCursorFocus(_x: number, _y: number) {
-  if (!cachedCursorElement) {
-    cachedCursorElement = document.querySelector('.fake-cursor');
-    if (!cachedCursorElement) {
-      createFakeCursor();
-      cachedCursorElement = document.querySelector('.fake-cursor');
-      if (!cachedCursorElement) return;
-    }
-  }
+  const cursorElement = document.querySelector('.fake-cursor');
+  if (!cursorElement) createFakeCursor();
 
-  const cursorRect = cachedCursorElement.getBoundingClientRect();
-
-  // 커서 중심점 계산
-  const cursorCenterX = cursorRect.left + cursorRect.width / 2;
-  const cursorCenterY = cursorRect.top + cursorRect.height / 2;
+  const cursorRect = cursorElement?.getBoundingClientRect();
+  if (!cursorRect) return;
 
   const elementsAtCursor = document.elementsFromPoint(
-    cursorCenterX,
-    cursorCenterY,
+    cursorRect.left + cursorRect.width / 2,
+    cursorRect.top + cursorRect.height / 2,
   );
 
   const clickableElement = elementsAtCursor.find(
@@ -140,67 +105,70 @@ function handleCursorFocus(_x: number, _y: number) {
       (el.tagName === 'BUTTON' || el.tagName === 'A'),
   ) as HTMLElement | undefined;
 
-  // 현재 타겟이 변경되었거나 없어졌을 때 타이머 제거
+  let focusTimer: NodeJS.Timeout | null = null;
+  let clickTimer: NodeJS.Timeout | null = null;
+
   if (
     (clickableElement !== currentTarget || !clickableElement) &&
     currentTarget
   ) {
-    clearTimers();
+    if (focusTimer) {
+      clearTimeout(focusTimer);
+    }
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+    }
+
     cancelPlayingAnimation(currentTarget);
     currentTarget = null;
   }
 
-  if (
-    clickableElement instanceof HTMLElement &&
-    clickableElement !== currentTarget
-  ) {
-    clearTimers();
-    currentTarget = clickableElement;
+  if (clickableElement instanceof HTMLElement) {
+    if (clickableElement !== currentTarget) {
+      if (focusTimer) {
+        clearTimeout(focusTimer);
+      }
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+      }
+      currentTarget = clickableElement;
 
-    focusTimer = setTimeout(() => {
-      clickableElement.focus();
-      clickableElement.classList.add('animate-background');
+      focusTimer = setTimeout(() => {
+        clickableElement.focus();
+        clickableElement.classList.add('animate-background');
 
-      requestAnimationFrame(() => {
-        clickableElement.classList.add('playing');
-      });
-
-      clickableElement.classList.remove('stopped');
-
-      clickTimer = setTimeout(() => {
         requestAnimationFrame(() => {
-          if (!cachedCursorElement) return;
-
-          const cursorRect = cachedCursorElement.getBoundingClientRect();
-          const clickableRect = clickableElement.getBoundingClientRect();
-
-          const isInBounds =
-            cursorRect.left >= clickableRect.left &&
-            cursorRect.top >= clickableRect.top &&
-            cursorRect.right <= clickableRect.right &&
-            cursorRect.bottom <= clickableRect.bottom;
-
-          if (document.activeElement === clickableElement && isInBounds) {
-            clickableElement.click();
-            currentTarget = null;
-          } else {
-            cancelPlayingAnimation(clickableElement);
-            currentTarget = null;
-          }
+          clickableElement.classList.add('playing');
         });
-      }, 2000);
-    }, 1000);
-  }
-}
 
-function clearTimers() {
-  if (focusTimer) {
-    clearTimeout(focusTimer);
-    focusTimer = null;
-  }
-  if (clickTimer) {
-    clearTimeout(clickTimer);
-    clickTimer = null;
+        clickableElement.classList.remove('stopped');
+
+        clickTimer = setTimeout(() => {
+          requestAnimationFrame(() => {
+            const activeElement = document.activeElement;
+            const cursorElement = document.querySelector('.fake-cursor');
+            if (!cursorElement) return;
+
+            const cursorRect = cursorElement.getBoundingClientRect();
+            const clickableRect = clickableElement.getBoundingClientRect();
+
+            const isInBounds =
+              cursorRect.left >= clickableRect.left &&
+              cursorRect.top >= clickableRect.top &&
+              cursorRect.right <= clickableRect.right &&
+              cursorRect.bottom <= clickableRect.bottom;
+
+            if (activeElement === clickableElement && isInBounds) {
+              clickableElement.click();
+              currentTarget = null;
+            } else {
+              cancelPlayingAnimation(clickableElement);
+              currentTarget = null;
+            }
+          });
+        }, 2000);
+      }, 1000);
+    }
   }
 }
 
@@ -208,35 +176,25 @@ function clearTimers() {
 function createFakeCursor() {
   const cursorElement = document.createElement('div');
   cursorElement.classList.add('fake-cursor');
-  document.body.appendChild(cursorElement);
-  cachedCursorElement = cursorElement;
+
+  document.body.appendChild(cursorElement); // 화면에 커서를 추가
 }
 
 // moveCursorTo 함수: 커서 위치 이동
 function moveCursorTo(x: number, y: number) {
-  if (!cachedCursorElement) {
-    cachedCursorElement = document.querySelector('.fake-cursor');
-    if (!cachedCursorElement) {
-      createFakeCursor();
-      return;
-    }
+  const cursorElement = document.querySelector('.fake-cursor');
+  if (cursorElement instanceof HTMLElement) {
+    cursorElement.style.left = `${x - 25}px`;
+    cursorElement.style.top = `${y - 25}px`;
   }
-
-  cachedCursorElement.style.left = `${x - 25}px`;
-  cachedCursorElement.style.top = `${y - 25}px`;
 }
 
 // 가짜 커서 제거 함수
 function removeFakeCursor() {
-  if (!cachedCursorElement) {
-    cachedCursorElement = document.querySelector('.fake-cursor');
+  const cursorElement = document.querySelector(".fake-cursor");
+  if (cursorElement instanceof HTMLElement) {
+    cursorElement.classList.add("remove-fake-cursor");
   }
-
-  if (cachedCursorElement) {
-    cachedCursorElement.classList.add('remove-fake-cursor');
-  }
-
-  clearTimers();
 }
 
 function cancelPlayingAnimation(el: HTMLElement) {
