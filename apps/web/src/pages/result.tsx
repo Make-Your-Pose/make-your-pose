@@ -16,59 +16,6 @@ type RankingItem = {
   Score: number;
 };
 
-// const dummyData: RankingItem[] = [
-//   {
-//     ID: '1',
-//     Username: 'PlayerOne',
-//     Score: 1500,
-//   },
-//   {
-//     ID: '2',
-//     Username: 'PlayerTwo',
-//     Score: 1400,
-//   },
-//   {
-//     ID: '3',
-//     Username: 'PlayerThree',
-//     Score: 1300,
-//   },
-//   {
-//     ID: '4',
-//     Username: 'PlayerFour',
-//     Score: 1200,
-//   },
-//   {
-//     ID: '5',
-//     Username: 'PlayerFive',
-//     Score: 1100,
-//   },
-//   {
-//     ID: '6',
-//     Username: 'PlayerSix',
-//     Score: 1000,
-//   },
-//   {
-//     ID: '7',
-//     Username: 'PlayerSeven',
-//     Score: 950,
-//   },
-//   {
-//     ID: '8',
-//     Username: 'PlayerEight',
-//     Score: 900,
-//   },
-//   {
-//     ID: '9',
-//     Username: 'PlayerNine',
-//     Score: 850,
-//   },
-//   {
-//     ID: '10',
-//     Username: 'PlayerTen',
-//     Score: 800,
-//   },
-// ];
-
 const button = css({
   display: 'flex',
   width: '100%',
