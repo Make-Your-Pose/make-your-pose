@@ -451,14 +451,20 @@ function Game() {
                       transform: 'translate(-50%, -50%)',
                       fontWeight: 'bold',
                       fontSize: scoreReaction === 0 ? '6xl' : '7xl',
-                      color: scoreReaction === 0 ? '#FF6701' : 'black',
+                      color: '#FF6701',
                       animation: 'floatUpFade 1s forwards',
                       animationDelay: '0.3s',
                       pointerEvents: 'none',
                       zIndex: 5,
                     })}
                   >
-                    {scoreReaction === 0 ? 'Miss' : `+${scoreReaction}`}
+                    {scoreReaction === 0
+                      ? 'Miss'
+                      : scoreReaction < 90
+                        ? 'Good'
+                        : scoreReaction < 95
+                          ? 'Great'
+                          : 'Perfect'}
                   </div>
                 )}
               </>
