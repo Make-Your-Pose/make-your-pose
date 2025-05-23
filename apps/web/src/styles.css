@@ -1,27 +1,41 @@
 @font-face {
-  font-family: 'GmarketSansBold';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');
+  font-family: "GmarketSansBold";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GmarketSansMedium';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+  font-family: "GmarketSansMedium";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GmarketSansLight';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');
+  font-family: "GmarketSansLight";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff")
+    format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 body {
   overflow: hidden;
-  font-family: 'GmarketSansMedium', sans-serif;
+  font-family: "GmarketSansMedium", sans-serif;
+}
+
+/* 모든 스크롤바 숨김 (크로스 브라우저) */
+body,
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 button:focus,
@@ -30,7 +44,7 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border: 4px solid #FF6600;
+  border: 4px solid #ff6600;
 }
 
 .animate-background {
@@ -50,7 +64,7 @@ select:focus {
 
 .animate-background.playing::after {
   height: 100%;
-  background-color: #FF6600;
+  background-color: #ff6600;
 }
 
 .animate-background.stopped::after {
@@ -69,7 +83,7 @@ canvas {
   position: absolute;
   width: 50px;
   height: 50px;
-  background-color: #FF6600;
+  background-color: #ff6600;
   border-radius: 50%;
   z-index: 1000;
   pointer-events: none;
