@@ -70,8 +70,10 @@ export function WebcamPlayer() {
               return;
             }
 
-            // --- 6. 마스크 적용 (마스크가 없는 영역은 투명하게) ---
-            const threshold = 0.5;
+            // --- 6. 마스크 적용 (경계에 페더링 적용) ---
+            const threshold = 0.5; // 마스크 결정의 중심점
+            const featherAmount = 0.15; // 페더링 범위 (0.0 ~ 0.5). 값이 클수록 가장자리가 부드러워집니다.
+            // 실제 페더링 전환은 [threshold - featherAmount, threshold + featherAmount] 범위에서 발생합니다.
 
             for (let y = 0; y < maskHeight; ++y) {
               for (let x = 0; x < maskWidth; ++x) {
@@ -85,15 +87,32 @@ export function WebcamPlayer() {
                 let maskValue = maskBuffer[i];
 
                 if (maskType === 'uint8') {
-                  maskValue = maskValue / 255.0;
+                  maskValue = maskValue / 255.0; // 0.0 ~ 1.0 범위로 정규화
                 }
 
-                // 마스크가 없는 영역은 알파 값을 0으로 설정
-                if (maskValue <= threshold) {
-                  // 반전된 위치의 픽셀을 투명하게 설정
-                  const pixelIndex = mirroredIndex * 4;
-                  pixelData[pixelIndex + 3] = 0; // 알파 채널
+                const pixelIndex = mirroredIndex * 4; // R, G, B, A 순서
+                let alphaValue: number;
+
+                if (maskValue < threshold - featherAmount) {
+                  // 마스크 + 페더링 범위 완전 바깥쪽: 완전 투명
+                  alphaValue = 0;
+                } else if (maskValue > threshold + featherAmount) {
+                  // 마스크 + 페더링 범위 완전 안쪽: 완전 불투명
+                  alphaValue = 255;
+                } else {
+                  // 페더링 전환 구간 내
+                  // 페더링 구간 내에서 maskValue를 [0, 1] 범위로 정규화
+                  const normalizedFeather =
+                    (maskValue - (threshold - featherAmount)) /
+                    (2 * featherAmount);
+                  alphaValue = normalizedFeather * 255;
                 }
+
+                // 알파 값을 0과 255 사이로 제한
+                pixelData[pixelIndex + 3] = Math.max(
+                  0,
+                  Math.min(255, alphaValue),
+                );
               }
             }
 
