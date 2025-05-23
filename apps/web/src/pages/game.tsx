@@ -244,7 +244,7 @@ function Game() {
           logger.error('Error recording score:', error);
         }
 
-        navigate('/result');
+        navigate(`/result?category=${category}`);
       };
       postScore();
     }

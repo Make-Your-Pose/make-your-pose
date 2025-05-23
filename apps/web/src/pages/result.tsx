@@ -2,7 +2,7 @@ import { css } from '~styled-system/css';
 import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
 import { logger } from 'src/utils/logger';
@@ -92,11 +92,16 @@ function Result() {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
 
   const { id, regenerateNickname } = useNickname();
+  const location = useLocation();
+
+  // category 파싱
+  const searchParams = new URLSearchParams(location.search);
+  const category = searchParams.get('category') || 'sports';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/rankings/sports');
+        const response = await fetch(`/api/rankings/${category}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -113,8 +118,9 @@ function Result() {
             Score: Number(lastScore),
           };
           setData([myScoreItem, ...fetchedData]); // 새 배열 생성
+        } else {
+          setData(fetchedData);
         }
-        setData(fetchedData);
       } catch (error) {
         logger.error('Error fetching ranking data:', error);
       } finally {
@@ -123,7 +129,7 @@ function Result() {
     };
 
     fetchData();
-  }, []);
+  }, [category]);
 
   useEffect(() => {
     if (!isLoading && meItemRef.current && scrollContainerRef.current) {
