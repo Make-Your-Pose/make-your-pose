@@ -2,7 +2,7 @@ import { css } from '~styled-system/css';
 import bg1 from '../images/bg-1.png';
 import { hstack, vstack } from '~styled-system/patterns';
 import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import home from '../images/home.svg';
 import { motion } from 'motion/react';
 import { logger } from 'src/utils/logger';
@@ -288,16 +288,16 @@ function Result() {
               })}
             </motion.div>
           )}
-          <Link
+          <a
             className={button}
-            to="/"
+            href="/"
             onClick={() => {
               regenerateNickname();
             }}
           >
             <img src={home} style={{ width: '40px' }} />
             홈으로
-          </Link>
+          </a>
         </div>
       </div>
     </div>
