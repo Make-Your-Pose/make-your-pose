@@ -1,81 +1,110 @@
-# Turborepo starter
+# Make Your Pose
 
-This is an official starter Turborepo.
+`Make Your Pose`는 웹캠 기반 포즈 인식으로 정답 포즈를 맞히는 인터랙티브 웹 게임입니다.
 
-## Using this example
+- 플레이어는 실시간으로 자신의 포즈를 따라 하며 정답을 추리합니다.
+- 포즈 유사도 점수를 기반으로 라운드가 진행됩니다.
+- 게임 종료 후 카테고리별 랭킹(리더보드)을 확인할 수 있습니다.
 
-Run the following command:
+## 프로젝트 구성
 
-```sh
-npx create-turbo@latest
+이 저장소는 Turborepo 기반 모노레포입니다.
+
+### apps/web
+- 실제 게임 클라이언트(React + Vite)
+- 포즈 인식(Mediapipe), 게임 상태 머신(XState), 3D 렌더링(three/react-three)
+- Cloudflare Worker API를 통해 점수 저장/조회
+
+### apps/editor
+- 포즈 랜드마크 데이터 편집/생성 도구(React + Vite)
+- 이미지에서 랜드마크 추출, 파일 열기/저장 기능 제공
+
+## 주요 기능
+
+- 홈 → 튜토리얼 → 로비 → 게임 → 결과 화면 흐름
+- 카테고리 선택 기반 게임(현재 sports, yoga)
+- 정답 포즈 랜드마크와 사용자 포즈 간 유사도 계산
+- 점수 기록 및 카테고리별 리더보드 조회
+- BGM/SFX를 포함한 몰입형 UI
+
+## 기술 스택
+
+- Monorepo: Turborepo, pnpm workspaces
+- Frontend: React, TypeScript, Vite
+- Styling: Panda CSS
+- Pose/3D: MediaPipe Tasks Vision, three.js, @react-three/fiber
+- State Machine: XState
+- Backend(API): Cloudflare Workers + itty-router
+- Database: Cloudflare D1
+
+## 시작하기
+
+### 1) 요구 사항
+- Node.js 20+
+- pnpm 9+
+
+### 2) 의존성 설치
+```bash
+pnpm install
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
+### 3) 전체 개발 서버 실행(모노레포)
+```bash
 pnpm dev
 ```
 
-### Remote Caching
+### 4) 앱별 실행
+```bash
+# 게임 웹 앱
+pnpm --filter @make-your-pose/web dev
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
+# 에디터 앱
+pnpm --filter @make-your-pose/editor dev
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## 빌드 및 검증
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+```bash
+# 전체 빌드
+pnpm build
 
+# 모노레포 lint
+pnpm lint
+
+# 포맷 + lint 체크
+pnpm format-and-lint
 ```
-npx turbo link
+
+## 배포
+
+웹 앱(`apps/web`)은 Cloudflare Worker로 배포할 수 있습니다.
+
+```bash
+pnpm --filter @make-your-pose/web deploy
 ```
 
-## Useful Links
+`apps/web/wrangler.jsonc`에서 Worker/D1 설정을 확인하세요.
 
-Learn more about the power of Turborepo:
+## API 개요
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+`apps/web/worker`에 랭킹 API가 구현되어 있습니다.
+
+- `GET /api/rankings/:category` : 카테고리별 랭킹 조회
+- `POST /api/rankings/:category/scores` : 점수 등록
+
+## 디렉터리 구조
+
+```text
+make-your-pose/
+├─ apps/
+│  ├─ web/        # 게임 클라이언트 + Cloudflare Worker API
+│  └─ editor/     # 랜드마크 편집 도구
+├─ packages/
+│  └─ typescript-config/
+├─ turbo.json
+└─ pnpm-workspace.yaml
+```
+
+## 라이선스
+
+별도 고지 전까지 저장소 정책을 따릅니다.
