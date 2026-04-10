@@ -52,7 +52,7 @@ pnpm dev
 
 ### 원격 캐시(Remote Caching)
 
-Turborepo는 [원격 캐시](https://turbo.build/repo/docs/core-concepts/remote-caching)라는 기법을 사용해 머신 간 캐시 아티팩트를 공유할 수 있습니다. 이를 통해 팀 및 CI/CD 파이프라인과 빌드 캐시를 공유할 수 있습니다.
+Turborepo는 [원격 캐시(Remote Caching)](https://turbo.build/repo/docs/core-concepts/remote-caching)라는 기법을 사용해 머신 간 캐시 아티팩트를 공유할 수 있습니다. 이를 통해 팀 및 CI/CD 파이프라인과 빌드 캐시를 공유할 수 있습니다.
 
 기본적으로 Turborepo는 로컬 캐시를 사용합니다. 원격 캐시를 사용하려면 Vercel 계정이 필요합니다. 계정이 없다면 [여기서 생성](https://vercel.com/signup)한 뒤, 다음 명령어를 실행하세요.
 
